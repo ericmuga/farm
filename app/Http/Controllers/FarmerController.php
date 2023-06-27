@@ -7,6 +7,7 @@ use App\Http\Requests\StoreFarmerRequest;
 use App\Http\Requests\UpdateFarmerRequest;
 use Illuminate\Http\Request;
 use App\Http\Resources\FarmerResource;
+use App\Services\SearchService;
 
 class FarmerController extends Controller
 {
@@ -16,18 +17,23 @@ class FarmerController extends Controller
     public function index(Request $request)
     {
         //filter through the request return a list of farmers
+        $model=new Farmer();
+
 
          $farmers=FarmerResource::collection(
-              Farmer::query()
-                    ->when($request->has('search'),fn($q)=>$q->where('farmer_name','like','%'.$request->search.'%')
-                                                              ->orWhere('id_no','like','%'.$request->search.'%')
-                                                              ->orWhere('pf_no','like','%'.$request->search.'%')
-                                                              ->orWhere('registration_no','like','%'.$request->search.'%')
+              (new SearchService($model))->search($request)
 
-                           )
-                    ->paginate(15)
-                    ->withQueryString()
-                    ->appends($request->all())
+
+              // Farmer::query()
+              //       ->when($request->has('search'),fn($q)=>$q->where('farmer_name','like','%'.$request->search.'%')
+              //                                                 ->orWhere('id_no','like','%'.$request->search.'%')
+              //                                                 ->orWhere('pf_no','like','%'.$request->search.'%')
+              //                                                 ->orWhere('registration_no','like','%'.$request->search.'%')
+
+              //              )
+              //       ->paginate(15)
+              //       ->withQueryString()
+              //       ->appends($request->all())
           );
 
       return inertia('Farmer/List',compact('farmers'));

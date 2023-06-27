@@ -5,13 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Farmer extends Model
+class Contact extends Model
 {
-
     use HasFactory;
 
-    // public function contacts()
-    // {
-    //     rerturn $this->morphs('contactable');
-    // }
+
+  public function contactable()
+  {
+      return $this->morphs();
+  }
+
+  
 }
