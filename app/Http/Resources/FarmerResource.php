@@ -15,7 +15,7 @@ class FarmerResource extends JsonResource
     public function toArray(Request $request): array
     {
        /*
-          
+
             $table->id();
             $table->string('type')->index();
             $table->string('farmer_name');
@@ -28,7 +28,7 @@ class FarmerResource extends JsonResource
             $table->boolean('isActive');
             $table->string('status')->nullable();
             $table->timestamps();
-       */ 
+       */
         return [
                     'farmer_name'=>$this->farmer_name,
                     'gender'=>$this->gender,
@@ -41,7 +41,8 @@ class FarmerResource extends JsonResource
                     'isActive'=>$this->isActive,
                     'status'=>$this->status,
                     'type'=>$this->type,
-                    'contacts_count'=>$this->whenCounted('contacts')
+                    'contacts_count'=>$this->whenCounted('contacts'),
+                    'contacts'=>$this->whenLoaded('contacts')
                ];
     }
 }

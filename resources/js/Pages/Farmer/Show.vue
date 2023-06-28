@@ -78,6 +78,7 @@ const props= defineProps({
                                   Primary?
                                 </th>
                             </tr>
+                            </thead>
                             <tbody>
 
                                 <tr v-for="contact in farmer.contacts" :key="contact.id"
@@ -95,12 +96,17 @@ const props= defineProps({
                                  <td class="px-3 py-2 text-xs ">
                                     {{ contact.contact }}
                                 </td>
-                                 <td class="px-3 py-2 text-xs ">
-                                    {{ contact.isPrimary }}
+                                <td class="px-3 py-2 text-xs text-center">
+
+                                <div v-if="contact.isPrimary=='1'" class="bg-green-300 rounded">
+                                Yes
+                                </div>
+                                <div v-else class="bg-orange-300"> No </div>
+
                                 </td>
                                 </tr>
                                 </tbody>
-                    </thead>
+
                 </table>
 
             </TabPanel>

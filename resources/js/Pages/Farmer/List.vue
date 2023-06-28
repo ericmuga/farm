@@ -95,12 +95,17 @@ const showUpdateModal=(farmer)=>{
     form.isActive=farmer.isActive=='1'?true:false
     form.date_of_birth=farmer.date_of_birth
     form.id=farmer.id
-    form.email=farmer.email,
-    form.phone_no=farmer.phone_no,
+    form.email=getFirstInstanceByKeyValuePair(farmer.contacts,'contact_type','email').contact
+    form.phone_no=getFirstInstanceByKeyValuePair(farmer.contacts,'contact_type','phone_no').contact,
 
     showModal.value=true
 }
 
+
+
+const getFirstInstanceByKeyValuePair = (array, key, value) => {
+  return array.find(item => item[key] === value);
+};
 
 
 const gender = ref([
