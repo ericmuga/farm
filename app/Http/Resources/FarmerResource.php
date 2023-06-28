@@ -40,7 +40,8 @@ class FarmerResource extends JsonResource
                     'id_photo_path'=>$this->id_photo_path,
                     'isActive'=>$this->isActive,
                     'status'=>$this->status,
-                    'type'=>$this->type
+                    'type'=>$this->type,
+                    'contacts_count'=>$this->whenCounted('contacts')
                ];
     }
 }

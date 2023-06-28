@@ -19,6 +19,7 @@ import Checkbox from 'primevue/checkbox';
 import ConfirmPopup from 'primevue/confirmpopup';
 import ConfirmationService from 'primevue/confirmationservice';
 import Dropdown from 'primevue/dropdown';
+import { Link } from '@inertiajs/vue3'
 
 import PrimeVue from 'primevue/config';
 import 'primevue/resources/themes/lara-light-indigo/theme.css';
@@ -44,6 +45,7 @@ createInertiaApp({
             .component('MultiSelect',MultiSelect)
             .component('Dropdown',Dropdown)
             .component('Pagination',Pagination)
+            .component('Link',Link)
             // .mount(el)
             .mount(el);
     },

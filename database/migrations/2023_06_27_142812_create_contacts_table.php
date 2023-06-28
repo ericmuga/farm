@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->morphs('contactable');
             $table->string('contact');
-            $table->string('conact_type');  
+            $table->string('contact_type');
             $table->boolean('isPrimary');
             $table->timestamps();
         });

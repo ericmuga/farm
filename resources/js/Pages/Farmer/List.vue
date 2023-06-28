@@ -9,11 +9,14 @@ import { useForm } from '@inertiajs/vue3'
 // import { Inertia } from '@inertiajs/inertia';
 import { router } from '@inertiajs/vue3'
 import debounce from 'lodash/debounce';
-import {watch, ref} from 'vue';
+import {watch, ref,provide} from 'vue';
 import Pagination from '@/Components/Pagination.vue'
 import Swal from 'sweetalert2'
 import Modal from '@/Components/Modal.vue'
 import Drop from '@/Components/Drop.vue'
+import CustomCheckbox from '@/components/CustomCheckbox.vue';
+import { fromJSON } from 'postcss';
+
 
 const form= useForm({
    'pf_no':'',
@@ -23,10 +26,18 @@ const form= useForm({
    'gender':'',
    'date_of_birth':'',
    'isActive':false,
-   'type':''
+   'type':'',
+   'id':null,
+   'email':'',
+   'phone_no':''
 
 })
 
+const handleValueUpdate = (newValue) => {
+  form.isActive = newValue;
+  // Handle the updated value as needed
+};
+provide('emit', handleValueUpdate);
 const createOrUpdateItem=()=>{
     if (mode.state=='Create')
           form.post(route('farmer.store'))
@@ -50,16 +61,24 @@ let mode= { state: 'Create' };
 const showCreateModal=()=>{
 
     mode.state='Create'
-    form.farmer_name=''
-    form.pf_no=''
-    form.id_no=''
-    form.registration_no=''
-    form.gender=''
-    form.type=''
-    form.isActive=true
-    form.date_of_birth=''
+    form.reset()
+    // form.farmer_name=''
+    // form.pf_no=''
+    // form.id_no=''
+    // form.registration_no=''
+    // form.gender=''
+    // form.type=''
+    // form.isActive=true
+    // form.date_of_birth=''
+    // form.email=''
+    // form.phone_no=''
     showModal.value=true
 
+}
+
+const navigateTo=(farmerId)=>{
+  // Use Inertia.js Link to navigate to the desired page
+  router.visit(`/farmer/${farmerId}`);
 }
 
 const showUpdateModal=(farmer)=>{
@@ -67,34 +86,41 @@ const showUpdateModal=(farmer)=>{
     mode.state='Update'
     // alert(mode.state)
     form.farmer_name=farmer.farmer_name
+
     form.pf_no=farmer.pf_no
     form.id_no=farmer.id_no
     form.registration_no=farmer.registration_no
     form.gender=farmer.gender
     form.type=farmer.type
-    form.isActive=farmer.isActive
+    form.isActive=farmer.isActive=='1'?true:false
     form.date_of_birth=farmer.date_of_birth
-    
+    form.id=farmer.id
+    form.email=farmer.email,
+    form.phone_no=farmer.phone_no,
+
     showModal.value=true
 }
+
+
 
 const gender = ref([
     { name: 'Female', code: 'Female' },
     { name: 'Male', code: 'Male' },
-    
+    { name: 'N/A', code: 'N/A' },
+
 ]);
 
 
 const types = ref([
     { name: 'Individual', code: 'Individual' },
     { name: 'Corporate', code: 'Corporate' },
-    
+
 ]);
 </script>
 
 
 <template>
-    <Head title="Items"/>
+    <Head title="Farmers"/>
 
     <AuthenticatedLayout @add="showModal=true">
         <template #header>
@@ -135,7 +161,7 @@ const types = ref([
                                 </template>
 
                                     <template #end>
-                                     
+
 
 
 
@@ -149,29 +175,30 @@ const types = ref([
                                             <table class="w-full text-sm text-left text-gray-500">
                                                 <thead class="text-xs text-gray-700 uppercase bg-gray-50">
 
-                                                    <tr class="bg-slate-300">
+                                                    <tr class="bg-slate-300 ">
                                                          <th scope="col" class="px-6 py-3">
                                                             Name
-                                                        </th> 
-                                                        
+                                                        </th>
+
                                                         <th scope="col" class="px-6 py-3 text-center">
-                                                           ID No.
+                                                           ID No./ Registration No
                                                         </th>
-                                                        <th scope="col" class="px-6 py-3">
+                                                        <th scope="col" class="px-6 py-3 text-center">
                                                            PF No.
-                                                        </th>
-                                                        <th scope="col" class="px-6 py-3">
-                                                            Registration No.
                                                         </th>
                                                         <th scope="col" class="px-6 py-3">
                                                           Type
                                                         </th>
-                                                        <th scope="col" class="px-6 py-3">
+                                                        <th scope="col" class="px-6 py-3 text-center">
                                                           Is Active?
                                                         </th>
-                                                         <th scope="col" class="px-6 py-3">
+                                                         <th scope="col" class="px-6 py-3 text-center">
                                                           Gender
                                                         </th>
+                                                        <th scope="col" class="px-6 py-3 text-center">
+                                                          Contacts
+                                                        </th>
+
                                                         <th scope="col" class="px-6 py-3">
                                                            Actions
                                                         </th>
@@ -181,39 +208,53 @@ const types = ref([
                                                     </tr>
                                                 </thead>
                                                 <tbody>
+
                                                     <tr v-for="farmer in farmers.data" :key="farmer.id"
-                                                    class="bg-white border-b">
+                                                    class="bg-white border-b hover:bg-slate-100 hover:text-black"
+
+                                                    >
 
                                                     <td class="px-3 py-2 text-xs">
                                                         {{ farmer.farmer_name }}
                                                     </td>
 
-                                                    <td class="px-3 py-2 text-xs font-bold text-center ">
+                                                    <td v-if="farmer.id_no" class="px-3 py-2 text-xs font-bold text-center ">
                                                         {{ farmer.id_no }}
+                                                    </td>
+                                                    <td v-else>
+                                                         {{ farmer.registration_no }}
                                                     </td>
                                                     <td class="px-3 py-2 text-xs font-bold text-center ">
                                                         {{ farmer.pf_no }}
                                                     </td>
-                                                    <td class="px-3 py-2 text-xs font-bold">
-                                                        {{ farmer.registration_no }}
-                                                    </td>
+
                                                     <td class="px-3 py-2 text-xs font-bold">
                                                         {{ farmer.type }}
                                                     </td>
 
-                                                    <td class="px-3 py-2 text-xs">
+                                                    <td class="px-3 py-2 text-xs text-center">
 
-                                                        <div v-if="farmer.isActive=='1'">
+                                                        <div v-if="farmer.isActive=='1'" class="bg-green-300 rounded">
                                                         Yes
                                                         </div>
-                                                        <div v-else> No </div>
+                                                        <div v-else class="bg-red-300"> No </div>
 
                                                     </td>
 
-                                                    
-                                                    <td class="px-3 py-2 text-xs">
+
+                                                    <td class="px-3 py-2 text-xs text-center">
 
                                                             {{farmer.gender}}
+
+                                                    </td>
+
+                                                    <td class="px-3 py-2 text-xs text-center rounded-sm">
+
+
+                                                               <Button icon="pi pi-book" severity="info" rounded outlined
+                                                                 :label="farmer.contacts_count"
+                                                                 disabled=true />
+
 
                                                     </td>
                                                     <td>
@@ -223,9 +264,13 @@ const types = ref([
                                                                       icon="pi pi-pencil"
                                                                       severity="info"
                                                                       text
-
-
-                                                                      @click="showUpdateModal(farmer)"
+                                                            @click="showUpdateModal(farmer)"
+                                                                      />
+                                                             <Button
+                                                                      icon="pi pi-user"
+                                                                      severity="info"
+                                                                      text
+                                                            @click="navigateTo(farmer.id)"
                                                                       />
                                                        </div>
                                                     </td>
@@ -262,13 +307,11 @@ const types = ref([
      <div class="flex flex-col p-4 rounded-sm">
 
         <div  class="w-full p-2 mb-2 tracking-wide text-center text-white rounded-sm bg-slate-500"> {{mode.state}} Farmer</div>
-        <!-- <div v-else class="w-full p-2 mb-2 tracking-wide text-center text-white rounded-sm bg-slate-500"> Update Item</div> -->
+        <form  @submit.prevent="createOrUpdateItem()">
 
-          <form  @submit.prevent="createOrUpdateItem()">
+      <div class="flex flex-col justify-center ">
 
-<div class="flex flex-col justify-center gap-3">
-
-          <Dropdown v-model="form.type" editable :options="types" optionLabel="name" placeholder="Type" optionValue="name" class="w-full md:w-14rem" />
+        <Dropdown v-model="form.type" editable :options="types" optionLabel="name" placeholder="Type" optionValue="name" class="w-full md:w-14rem" />
         <InputText
            placeholder="Id No"
            v-model="form.id_no"
@@ -287,15 +330,31 @@ const types = ref([
            v-model="form.registration_no"
         />
 
+         <InputText
+           placeholder="Email"
+           v-model="form.email"
+        />
+         <InputText
+           placeholder="Phone No."
+           v-model="form.phone_no"
+        />
 
-     
-        
+
+
+
         <input v-model="form.date_of_birth"  type="date" />
-      <label > isActive</label>
-          <input type="checkbox" v-model="form.isActive" :checked="form.isActive"/>
+
+          <!-- <input type="checkbox" v-model="form.isActive" :checked="form.isActive"/> -->
+
+          <!-- <custom-checkbox :value="form.isActive" @update:value="handleValueUpdate" label="isActive"></custom-checkbox>
+         -->
+         <div class="flex flex-row justify-center p-1 capitalize">
+            <span class="text-xs">isActive</span>
+            <Checkbox v-model="form.isActive" value="form.isActive" :binary="true"  />
+         </div>
           <Dropdown v-model="form.gender" editable :options="gender" optionLabel="name" placeholder="Gender" optionValue="name" class="w-full md:w-14rem" />
 
-        
+
         <Button
           severity="info"
           type="submit"
@@ -313,6 +372,9 @@ const types = ref([
 </AuthenticatedLayout>
 
 </template>
-<style lang="scss" scoped>
+<style  scoped>
 
+.row-hover:hover {
+  cursor: pointer;
+}
 </style>

@@ -12,7 +12,7 @@ class Contact extends Model
 
   public function contactable()
   {
-      return $this->morphs();
+      return $this->morphTo();
   }
 
   

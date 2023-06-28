@@ -17,6 +17,11 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+
+    public function contacts()
+    {
+        return $this->morphMany(Contact::class,'contactable');
+    }
     protected $fillable = [
         'name',
         'email',

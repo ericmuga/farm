@@ -10,8 +10,10 @@ class Farmer extends Model
 
     use HasFactory;
 
-    // public function contacts()
-    // {
-    //     rerturn $this->morphs('contactable');
-    // }
+
+    protected $guarded =['id'];
+    public function contacts()
+    {
+        return $this->morphMany(Contact::class,'contactable');
+    }
 }

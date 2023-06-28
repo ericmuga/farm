@@ -7,6 +7,7 @@ use App\Http\Requests\StoreFarmerRequest;
 use App\Http\Requests\UpdateFarmerRequest;
 use Illuminate\Http\Request;
 use App\Http\Resources\FarmerResource;
+use App\Models\Contact;
 use App\Services\SearchService;
 
 class FarmerController extends Controller
@@ -16,45 +17,39 @@ class FarmerController extends Controller
      */
     public function index(Request $request)
     {
-        //filter through the request return a list of farmers
-        $model=new Farmer();
-
 
          $farmers=FarmerResource::collection(
-              (new SearchService($model))->search($request)
+              (new SearchService(new Farmer()))
+                ->with(['contacts'])
+                ->counts(['contacts'])
+                // ->sums(['relatedModel4' => 'column'])
+              ->search($request)
 
-
-              // Farmer::query()
-              //       ->when($request->has('search'),fn($q)=>$q->where('farmer_name','like','%'.$request->search.'%')
-              //                                                 ->orWhere('id_no','like','%'.$request->search.'%')
-              //                                                 ->orWhere('pf_no','like','%'.$request->search.'%')
-              //                                                 ->orWhere('registration_no','like','%'.$request->search.'%')
-
-              //              )
-              //       ->paginate(15)
-              //       ->withQueryString()
-              //       ->appends($request->all())
           );
 
       return inertia('Farmer/List',compact('farmers'));
 
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    private function saveContact(Farmer $farmer,Request $request,$contact_type)
     {
-        //
+        if($request->has($contact_type)&&$request->input($contact_type)!='')
+        {
+            //create an email contact and attach in the pivot table
+         $contact= new Contact();
+         $contact->contact=$request->$contact_type;
+         $contact->isPrimary =true;
+         $contact->contact_type=$contact_type;
+         $farmer->contacts()->save($contact);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreFarmerRequest $request)
     {
         // dd($request->all());
-        Farmer::forceCreate($request->all());
+        $farmer=Farmer::forceCreate($request->except(['id','email','phone_no']));
+        $this->saveContact($farmer,$request,'email');
+        $this->saveContact($farmer,$request,'phone_no');
         return redirect (route('farmer.index'));
     }
 
@@ -63,7 +58,10 @@ class FarmerController extends Controller
      */
     public function show(Farmer $farmer)
     {
-        //
+        // This view will show farmer details
+        FarmerResource::make($farmer->load('contacts')
+                                     );
+       return inertia('Farmer/Show',compact('farmer'));
     }
 
     /**
@@ -77,12 +75,17 @@ class FarmerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(UpdateFarmerRequest $request)
     {
-        //
-dd($request->all());
 
-    
+        $farmer=Farmer::find($request->id)->update($request->except(['id','email','phone_no']));
+        //update the phone number and email
+
+
+        return redirect (route('farmer.index'));
+
+
+
 
     }
 
