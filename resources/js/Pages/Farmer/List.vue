@@ -9,13 +9,32 @@ import { useForm } from '@inertiajs/vue3'
 // import { Inertia } from '@inertiajs/inertia';
 import { router } from '@inertiajs/vue3'
 import debounce from 'lodash/debounce';
-import {watch, ref,provide} from 'vue';
+import {watch, ref,provide,onMounted} from 'vue';
 import Pagination from '@/Components/Pagination.vue'
 import Swal from 'sweetalert2'
 import Modal from '@/Components/Modal.vue'
 import Drop from '@/Components/Drop.vue'
 import CustomCheckbox from '@/components/CustomCheckbox.vue';
 import { fromJSON } from 'postcss';
+import {useLocation} from '@/Composables/useLocation.js'
+
+onMounted(() => {
+    fetchLocation()
+});
+
+const fetchLocation =  async () => {
+  try {
+    const { latitude, longitude } = await useLocation().getLocation();
+    // Do something with the latitude and longitude
+   form.latitude=latitude
+   form.longitude=longitude
+// alert(form.longitude)
+    // console.log(form.latitude)
+
+  } catch (error) {
+    // Handle the error
+  }
+};
 
 
 const form= useForm({
@@ -25,11 +44,14 @@ const form= useForm({
    'registration_no':'',
    'gender':'',
    'date_of_birth':'',
-   'isActive':false,
+   'isActive':true,
    'type':'',
    'id':null,
    'email':'',
-   'phone_no':''
+   'phone_no':'',
+   'latitude':null,
+   'longitude':null
+
 
 })
 
@@ -39,7 +61,9 @@ const handleValueUpdate = (newValue) => {
 };
 provide('emit', handleValueUpdate);
 const createOrUpdateItem=()=>{
+//   fetchLocation();
     if (mode.state=='Create')
+
           form.post(route('farmer.store'))
         else
      form.patch(route('farmer.update',form.id_no))
@@ -59,19 +83,10 @@ let mode= { state: 'Create' };
 
 
 const showCreateModal=()=>{
-
+    fetchLocation()
     mode.state='Create'
     form.reset()
-    // form.farmer_name=''
-    // form.pf_no=''
-    // form.id_no=''
-    // form.registration_no=''
-    // form.gender=''
-    // form.type=''
-    // form.isActive=true
-    // form.date_of_birth=''
-    // form.email=''
-    // form.phone_no=''
+
     showModal.value=true
 
 }
@@ -82,7 +97,7 @@ const navigateTo=(farmerId)=>{
 }
 
 const showUpdateModal=(farmer)=>{
-
+   fetchLocation()
     mode.state='Update'
     // alert(mode.state)
     form.farmer_name=farmer.farmer_name
@@ -153,6 +168,9 @@ const types = ref([
                                          @click="showCreateModal()"
                                          rounded
                                     ></Button>
+
+
+
                                 </template>
                                 <template #center>
                                     <div>
@@ -353,12 +371,12 @@ const types = ref([
 
           <!-- <custom-checkbox :value="form.isActive" @update:value="handleValueUpdate" label="isActive"></custom-checkbox>
          -->
-         <div class="flex flex-row justify-center p-1 capitalize">
+
+          <Dropdown v-model="form.gender" editable :options="gender" optionLabel="name" placeholder="Gender" optionValue="name" class="w-full md:w-14rem" />
+     <div class="flex flex-row justify-center p-1 capitalize">
             <span class="text-xs">isActive</span>
             <Checkbox v-model="form.isActive" value="form.isActive" :binary="true"  />
          </div>
-          <Dropdown v-model="form.gender" editable :options="gender" optionLabel="name" placeholder="Gender" optionValue="name" class="w-full md:w-14rem" />
-
 
         <Button
           severity="info"

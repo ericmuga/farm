@@ -44,23 +44,42 @@ class FarmerController extends Controller
         }
     }
 
+    private function saveOrUpdateLocation(Farmer $farmer,Request $request,$function)
+    {
+      if($function=='save'){
+        if ($request->has('latitude')&& $request->has('longitude')){
+            $farmer->created_geolocation=json_encode(['latitude'=>$request->latitude,'longitude'=>$request->longitude]);
+        }
+
+      }
+      else{
+        if ($request->has('latitude')&& $request->has('longitude')){
+            $farmer->updated_geolocation=json_encode(['latitude'=>$request->latitude,'longitude'=>$request->longitude]);
+        }
+      }
+      $farmer->save();
+
+    }
+
     public function store(StoreFarmerRequest $request)
     {
         // dd($request->all());
-        $farmer=Farmer::forceCreate($request->except(['id','email','phone_no']));
+        $farmer=Farmer::forceCreate($request->except(['id','email','phone_no','latitude','longitude']));
         $this->saveContact($farmer,$request,'email');
         $this->saveContact($farmer,$request,'phone_no');
+        $this->saveOrUpdateLocation($farmer,$request,'save');
         return redirect (route('farmer.index'));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Farmer $farmer)
+    public function show($id)
     {
         // This view will show farmer details
-        FarmerResource::make($farmer->load('contacts')
-                                     );
+        $f=Farmer::firstWhere('id',$id)->load(['contacts']);
+        // dd($farmer);
+        $farmer=FarmerResource::make($f);
        return inertia('Farmer/Show',compact('farmer'));
     }
 
@@ -78,7 +97,8 @@ class FarmerController extends Controller
     public function update(UpdateFarmerRequest $request)
     {
 
-        $farmer=Farmer::find($request->id)->update($request->except(['id','email','phone_no']));
+        $farmer=Farmer::find($request->id)->update($request->except(['id','email','phone_no','latitude','longitude']));
+         $this->saveOrUpdateLocation($farmer,$request,'update');
         //update the phone number and email
 
 

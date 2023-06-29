@@ -23,6 +23,9 @@ return new class extends Migration
             $table->string('id_photo_path')->nullable();
             $table->boolean('isActive');
             $table->string('status')->nullable();
+            $table->json('created_geolocation')->nullable();
+            $table->json('updated_geolocation')->nullable();
+            $table->softDeletesTz();
             $table->timestamps();
         });
     }

@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('contact');
             $table->string('contact_type');
             $table->boolean('isPrimary');
+            $table->json('created_geolocation')->nullable();
+            $table->json('updated_geolocation')->nullable();
+            $table->softDeletesTz();
             $table->timestamps();
         });
     }

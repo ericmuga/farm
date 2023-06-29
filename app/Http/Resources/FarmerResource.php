@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,21 +15,7 @@ class FarmerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-       /*
 
-            $table->id();
-            $table->string('type')->index();
-            $table->string('farmer_name');
-            $table->string('pf_no')->nullable();
-            $table->string('registration_no')->nullable();
-            $table->string('gender')->nullable();
-            $table->date('date_of_birth')->nullable();
-            $table->string('id_no')->nullable();
-            $table->string('id_photo_path');
-            $table->boolean('isActive');
-            $table->string('status')->nullable();
-            $table->timestamps();
-       */
         return [
                     'farmer_name'=>$this->farmer_name,
                     'gender'=>$this->gender,
@@ -42,7 +29,10 @@ class FarmerResource extends JsonResource
                     'status'=>$this->status,
                     'type'=>$this->type,
                     'contacts_count'=>$this->whenCounted('contacts'),
-                    'contacts'=>$this->whenLoaded('contacts')
+                    'contacts'=>$this->whenLoaded('contacts'),
+                    'created_at'=>Carbon::parse($this->created_at)->diffForHumans(),
+                    'updated_at'=>Carbon::parse($this->updated_at)->diffForHumans(),
+                    'created_geolocation'=>$this->created_geolocation
                ];
     }
 }
