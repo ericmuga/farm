@@ -319,20 +319,35 @@
 											"top": 153,
 											"width": 126.20263671875,
 											"height": 13
+										},
+										{
+											"_type": "ERDColumnView",
+											"_id": "AAAAAAGJAlPHah1Q1Zw=",
+											"_parent": {
+												"$ref": "AAAAAAGJAj01YBpu+sg="
+											},
+											"model": {
+												"$ref": "AAAAAAGJAlPHYR1NmH4="
+											},
+											"font": "Arial;13;0",
+											"left": 309,
+											"top": 168,
+											"width": 126.20263671875,
+											"height": 13
 										}
 									],
 									"font": "Arial;13;0",
 									"left": 304,
 									"top": 103,
 									"width": 136.20263671875,
-									"height": 68
+									"height": 83
 								}
 							],
 							"font": "Arial;13;0",
 							"left": 304,
 							"top": 80,
 							"width": 136.20263671875,
-							"height": 91,
+							"height": 106,
 							"nameLabel": {
 								"$ref": "AAAAAAGJAj01YBptVEg="
 							},
@@ -553,7 +568,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"left": 332,
-									"top": 190,
+									"top": 197,
 									"height": 13,
 									"alpha": 1.5707963267948966,
 									"distance": 15,
@@ -587,7 +602,7 @@
 									},
 									"font": "Arial;13;0",
 									"left": 332,
-									"top": 189,
+									"top": 204,
 									"height": 13,
 									"alpha": -0.5235987755982988,
 									"distance": 30,
@@ -604,7 +619,7 @@
 								"$ref": "AAAAAAGJAj4QfxqzwVg="
 							},
 							"lineStyle": 2,
-							"points": "347:224;347:170",
+							"points": "347:224;347:185",
 							"nameLabel": {
 								"$ref": "AAAAAAGJAj8iaxrfRhw="
 							},
@@ -2495,6 +2510,15 @@
 							},
 							"name": "contact_type",
 							"length": 0
+						},
+						{
+							"_type": "ERDColumn",
+							"_id": "AAAAAAGJAlPHYR1NmH4=",
+							"_parent": {
+								"$ref": "AAAAAAGJAj01YBpqesA="
+							},
+							"name": "isPrimary",
+							"length": 0
 						}
 					]
 				},
@@ -3148,6 +3172,14 @@
 							"length": 0
 						}
 					]
+				},
+				{
+					"_type": "ERDEntity",
+					"_id": "AAAAAAGJSMW2/x1UuUw=",
+					"_parent": {
+						"$ref": "AAAAAAGJAjtGYRocUOc="
+					},
+					"name": "Entity1"
 				}
 			]
 		}

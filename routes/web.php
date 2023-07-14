@@ -5,7 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-use App\Http\Controllers\{FarmerController};
+use App\Http\Controllers\{FarmerController,ContactController,AssociateController,LocationController};
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -41,9 +41,14 @@ Route::get('/',fn()=>Auth::check()?redirect('dashboard'):redirect('login'));
 Route::middleware('auth')->group(function () {
 
 
+Route::resource('farmer', FarmerController::class);
+Route::get('exportFarmer',[FarmerController::class,'export'])->name('farmers.export');
+Route::resource('contact', ContactController::class);
+Route::resource('associates', AssociateController::class);
+Route::resource('locations', LocationController::class);
+Route::get('exportLocation',[LocationController::class,'export'])->name('locations.export');
 });
 
-Route::resource('farmer', FarmerController::class);
 
 
 require __DIR__.'/auth.php';

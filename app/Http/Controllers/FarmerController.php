@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 use App\Http\Resources\FarmerResource;
 use App\Models\Contact;
 use App\Services\SearchService;
-
+use App\Exports\FarmerExport;
+use Maatwebsite\Excel\Facades\Excel;
 class FarmerController extends Controller
 {
     /**
@@ -20,18 +21,20 @@ class FarmerController extends Controller
 
          $farmers=FarmerResource::collection(
               (new SearchService(new Farmer()))
-                ->with(['contacts'])
+                ->with(['contacts','associates'])
                 ->counts(['contacts'])
                 // ->sums(['relatedModel4' => 'column'])
               ->search($request)
 
           );
 
+        //   dd($farmers);
+
       return inertia('Farmer/List',compact('farmers'));
 
     }
 
-    private function saveContact(Farmer $farmer,Request $request,$contact_type)
+    public   static function saveContact(Farmer $farmer,Request $request,$contact_type)
     {
         if($request->has($contact_type)&&$request->input($contact_type)!='')
         {
@@ -63,7 +66,7 @@ class FarmerController extends Controller
 
     public function store(StoreFarmerRequest $request)
     {
-        // dd($request->all());
+        // dd($request->all()) $this->saveOrUpdateLocation($farmer,$request,'save');;
         $farmer=Farmer::forceCreate($request->except(['id','email','phone_no','latitude','longitude']));
         $this->saveContact($farmer,$request,'email');
         $this->saveContact($farmer,$request,'phone_no');
@@ -77,7 +80,7 @@ class FarmerController extends Controller
     public function show($id)
     {
         // This view will show farmer details
-        $f=Farmer::firstWhere('id',$id)->load(['contacts']);
+        $f=Farmer::firstWhere('id',$id)->load('contacts','associates','associates.contacts');
         // dd($farmer);
         $farmer=FarmerResource::make($f);
        return inertia('Farmer/Show',compact('farmer'));
@@ -97,7 +100,8 @@ class FarmerController extends Controller
     public function update(UpdateFarmerRequest $request)
     {
 
-        $farmer=Farmer::find($request->id)->update($request->except(['id','email','phone_no','latitude','longitude']));
+        $farmer=Farmer::find($request->id);
+        $farmer->update($request->except(['id','email','phone_no','latitude','longitude']));
          $this->saveOrUpdateLocation($farmer,$request,'update');
         //update the phone number and email
 
@@ -116,5 +120,10 @@ class FarmerController extends Controller
     {
         $farmer->delete();
         return redirect(route('farmer.index'));
+    }
+
+    public function export ()
+    {
+        return Excel::download(new FarmerExport, 'farmers.xlsx');
     }
 }

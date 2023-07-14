@@ -35,6 +35,13 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('farmer.index')" :active="route().current('farmer.index')">
                                     Farmers
                                 </NavLink>
+                                <NavLink :href="route('locations.index')" :active="route().current('locations.index')">
+                                    Locations
+                                </NavLink>
+
+                                  <NavLink :href="route('locations.index')" :active="route().current('locations.index')">
+                                    Administration
+                                </NavLink>
                             </div>
                         </div>
 
@@ -119,7 +126,13 @@ const showingNavigationDropdown = ref(false);
                             Dashboard
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('farmer.index')" :active="route().current('farmer.index')">
-                            Dashboard
+                            Farmers
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('locations.index')" :active="route().current('locations.index')">
+                            Locations
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('locations.index')" :active="route().current('locations.index')">
+                            Administration
                         </ResponsiveNavLink>
                     </div>
 

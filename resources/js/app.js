@@ -20,7 +20,7 @@ import ConfirmPopup from 'primevue/confirmpopup';
 import ConfirmationService from 'primevue/confirmationservice';
 import Dropdown from 'primevue/dropdown';
 import { Link } from '@inertiajs/vue3'
-
+import ToastService from 'primevue/toastservice';
 import PrimeVue from 'primevue/config';
 import 'primevue/resources/themes/lara-light-indigo/theme.css';
 
@@ -35,6 +35,7 @@ createInertiaApp({
             .use(ZiggyVue, Ziggy)
             .use(PrimeVue)
             .use(ConfirmationService)
+            .use(ToastService)
             .use(createPinia())
             .component('ToolBar',Toolbar)
             .component('Checkbox',Checkbox)

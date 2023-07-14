@@ -23,6 +23,8 @@ onMounted(() => {
     fetchLocation()
 });
 
+
+
 const fetchLocation =  async () => {
   try {
     const { latitude, longitude } = await useLocation().getLocation();
@@ -45,17 +47,9 @@ const onUpload = () => {
 };
 
 const form= useForm({
-   'pf_no':'',
-   'id_no':'',
-   'farmer_name':'',
-   'registration_no':'',
-   'gender':'',
-   'date_of_birth':'',
-   'isActive':true,
-   'type':'',
-   'id':null,
-   'email':'',
-   'phone_no':'',
+   'location_name':'',
+   'location_type':'',
+   'parent_location_id':'',
    'latitude':null,
    'longitude':null
 
@@ -72,11 +66,11 @@ const createOrUpdateItem=()=>{
 
     if (mode.state=='Create')
 
-          form.post(route('farmer.store'))
+          form.post(route('locations.store'))
         else
-     form.patch(route('farmer.update',form.id_no))
+     form.patch(route('locations.update',form.id_no))
       showModal.value=false;
-    Swal.fire(`Farmer ${mode.state}ed Successfully!`,'','success');
+    Swal.fire(`location ${mode.state}ed Successfully!`,'','success');
 
 }
 
@@ -84,7 +78,7 @@ const createOrUpdateItem=()=>{
 let mode= { state: 'Create' };
 
   defineProps({
-       farmers:Object
+       locations:Object
   })
 
   let showModal=ref(false);
@@ -99,29 +93,20 @@ const showCreateModal=()=>{
 
 }
 
-const navigateTo=(farmerId)=>{
+const navigateTo=(locationId)=>{
   // Use Inertia.js Link to navigate to the desired page
-  router.visit(`/farmer/${farmerId}`);
+  router.visit(`/location/${locationId}`);
 }
 
-const showUpdateModal=(farmer)=>{
+const showUpdateModal=(location)=>{
    fetchLocation()
     mode.state='Update'
-    // alert(mode.state)
-    form.farmer_name=farmer.farmer_name
-
-    form.pf_no=farmer.pf_no
-    form.id_no=farmer.id_no
-    form.registration_no=farmer.registration_no
-    form.gender=farmer.gender
-    form.type=farmer.type
-    form.isActive=farmer.isActive=='1'?true:false
-    form.date_of_birth=farmer.date_of_birth
-    form.id=farmer.id
-    form.email=getFirstInstanceByKeyValuePair(farmer.contacts,'contact_type','email').contact
-    form.phone_no=getFirstInstanceByKeyValuePair(farmer.contacts,'contact_type','phone_no').contact,
-
+    form.location_name=location.location_name
+    form.location_type=location.location_type
+    form.parent_location_id=location.parent_location_id
     showModal.value=true
+
+
 }
 
 
@@ -131,28 +116,26 @@ const getFirstInstanceByKeyValuePair = (array, key, value) => {
 };
 
 
-const gender = ref([
-    { name: 'Female', code: 'Female' },
-    { name: 'Male', code: 'Male' },
-    { name: 'N/A', code: 'N/A' },
+const location_types = ref([
+    { name: 'Region', code: 'Region' },
+    { name: 'County', code: 'County' },
+    { name: 'Subcounty', code: 'Subcounty' },
+    { name: 'Ward', code: 'Ward' },
+    { name: 'Centre', code: 'Center' },
 
 ]);
 
 
-const types = ref([
-    { name: 'Individual', code: 'Individual' },
-    { name: 'Corporate', code: 'Corporate' },
 
-]);
 </script>
 
 
 <template>
-    <Head title="Farmers"/>
+    <Head title="Locations"/>
 
     <AuthenticatedLayout @add="showModal=true">
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">Farmers {{ farmers.data.length }}</h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">Locations {{ locations.data.length }}</h2>
         </template>
 
         <div class="py-6">
@@ -171,21 +154,27 @@ const types = ref([
                                         <FileUpload mode="basic" name="demo[]" url="./upload.php" accept="image/*" :maxFileSize="1000000" @upload="onUpload" :auto="true" chooseLabel="Upload" />
                                     </div>
                                         <!-- <i class="mr-2 pi pi-bars p-toolbar-separator" /> -->
-                                        <!-- <SplitButton label="Save" icon="pi pi-check" :model="farmers" class="p-button-warning"></SplitButton> -->
+                                        <!-- <SplitButton label="Save" icon="pi pi-check" :model="locations" class="p-button-warning"></SplitButton> -->
                                     <Button
                                          label="Add"
                                          icon="pi pi-plus"
                                          severity="info"
                                          @click="showCreateModal()"
-                                         rounded
-                                    ></Button>
+                                         rounded/>
+                                    <button
+                                     @click="showclicked()"
+                                    >
+                                    Click Me
+                                    </button>
+
+
 
 
 
                                 </template>
                                 <template #center>
                                     <div>
-                                        <Pagination :links="farmers.meta.links" />
+                                        <Pagination :links="locations.meta.links" />
                                     </div>
                                     <!-- <Modal :show="showModal.value">
                                         <FilterPane :propsData="columnListing" />
@@ -197,14 +186,14 @@ const types = ref([
                                     <template #end>
 
                                        <div class="p-2">
-                                       <a :href="route('farmers.export')">
+                                       <a :href="route('locations.export')">
                                         <Button label="Download" icon="pi pi-download" class="p-button-success" />
                                     </a>
 
                                        </div>
 
 
-                                             <SearchBox model="farmer.index" />
+                                             <SearchBox model="locations.index" />
                                     </template>
                                         </Toolbar>
 
@@ -215,27 +204,16 @@ const types = ref([
 
                                                     <tr class="bg-slate-300 ">
                                                          <th scope="col" class="px-6 py-3">
-                                                            Name
+                                                            Type
                                                         </th>
 
                                                         <th scope="col" class="px-6 py-3 text-center">
-                                                           ID No./ Registration No
+                                                           Location Name
                                                         </th>
                                                         <th scope="col" class="px-6 py-3 text-center">
-                                                           PF No.
+                                                           Parent Location
                                                         </th>
-                                                        <th scope="col" class="px-6 py-3">
-                                                          Type
-                                                        </th>
-                                                        <th scope="col" class="px-6 py-3 text-center">
-                                                          Is Active?
-                                                        </th>
-                                                         <th scope="col" class="px-6 py-3 text-center">
-                                                          Gender
-                                                        </th>
-                                                        <th scope="col" class="px-6 py-3 text-center">
-                                                          Contacts
-                                                        </th>
+
 
                                                         <th scope="col" class="px-6 py-3">
                                                            Actions
@@ -247,68 +225,45 @@ const types = ref([
                                                 </thead>
                                                 <tbody>
 
-                                                    <tr v-for="farmer in farmers.data" :key="farmer.id"
+                                                    <tr v-for="location in locations.data" :key="location.id"
                                                     class="bg-white border-b hover:bg-slate-100 hover:text-black"
 
                                                     >
 
                                                     <td class="px-3 py-2 text-xs">
-                                                        {{ farmer.farmer_name }}
+                                                        {{ location.location_type }}
                                                     </td>
 
-                                                    <td v-if="farmer.id_no" class="px-3 py-2 text-xs font-bold text-center ">
-                                                        {{ farmer.id_no }}
-                                                    </td>
-                                                    <td v-else>
-                                                         {{ farmer.registration_no }}
-                                                    </td>
+
                                                     <td class="px-3 py-2 text-xs font-bold text-center ">
-                                                        {{ farmer.pf_no }}
+                                                        {{ location.location_name}}
                                                     </td>
 
                                                     <td class="px-3 py-2 text-xs font-bold">
-                                                        {{ farmer.type }}
+                                                        {{ location.parent_location }}
                                                     </td>
-
-                                                    <td class="px-3 py-2 text-xs text-center">
-
-                                                        <div v-if="farmer.isActive=='1'" class="bg-green-300 rounded">
-                                                        Yes
-                                                        </div>
-                                                        <div v-else class="bg-red-300"> No </div>
-
+                                                    <!--
+                                                        <td class="px-3 py-2 text-xs text-center rounded-sm">
+                                                                <Button icon="pi pi-book" severity="info" rounded outlined
+                                                                 :label="location.contacts_count"
+                                                                 disabled=true
+                                                             />
                                                     </td>
-
-
-                                                    <td class="px-3 py-2 text-xs text-center">
-
-                                                            {{farmer.gender}}
-
-                                                    </td>
-
-                                                    <td class="px-3 py-2 text-xs text-center rounded-sm">
-
-
-                                                               <Button icon="pi pi-book" severity="info" rounded outlined
-                                                                 :label="farmer.contacts_count"
-                                                                 disabled=true />
-
-
-                                                    </td>
+                                                    -->
                                                     <td>
                                                        <div class="flex flex-row">
-                                                          <Drop  :drop-route="route('farmer.destroy',{id:farmer.id})"/>
+                                                          <Drop  :drop-route="route('locations.destroy',{id:location.id})"/>
                                                             <Button
                                                                       icon="pi pi-pencil"
                                                                       severity="info"
                                                                       text
-                                                            @click="showUpdateModal(farmer)"
+                                                            @click="showUpdateModal(location)"
                                                                       />
                                                              <Button
                                                                       icon="pi pi-user"
                                                                       severity="info"
                                                                       text
-                                                            @click="navigateTo(farmer.id)"
+                                                            @click="navigateTo(location.id)"
                                                                       />
                                                        </div>
                                                     </td>
@@ -322,7 +277,7 @@ const types = ref([
                     <Toolbar>
                         <template #center>
                             <div >
-                                <Pagination :links="farmers.meta.links" />
+                                <Pagination :links="locations.meta.links" />
                             </div>
                         </template>
                     </Toolbar>
@@ -344,54 +299,19 @@ const types = ref([
 
      <div class="flex flex-col p-4 rounded-sm">
 
-        <div  class="w-full p-2 mb-2 tracking-wide text-center text-white rounded-sm bg-slate-500"> {{mode.state}} Farmer</div>
+        <div  class="w-full p-2 mb-2 tracking-wide text-center text-white rounded-sm bg-slate-500"> {{mode.state}} location</div>
         <form  @submit.prevent="createOrUpdateItem()">
 
       <div class="flex flex-col justify-center ">
 
-        <Dropdown v-model="form.type" editable :options="types" optionLabel="name" placeholder="Type" optionValue="name" class="w-full md:w-14rem" />
+        <Dropdown v-model="form.location_type" editable :options="location_types"
+        optionLabel="name" placeholder="Location Type" optionValue="name" class="w-full md:w-14rem" />
         <InputText
-           placeholder="Name"
-           v-model="form.farmer_name"
-        />
-         <InputText
-           v-show="form.type=='Individual'"
-           placeholder="Id No"
-           v-model="form.id_no"
-        />
-
-        <InputText
-           placeholder="PF No."
-           v-model="form.pf_no"
-        />
-
-        <InputText
-           v-show="form.type=='Corporate'"
-           placeholder="Registration No."
-           v-model="form.registration_no"
-        />
-
-         <InputText
-           placeholder="Email"
-           v-model="form.email"
-        />
-         <InputText
-           placeholder="Phone No."
-           v-model="form.phone_no"
+           placeholder="Location Name"
+           v-model="form.location_name"
         />
 
 
-
-         <label for="DOB" v-if="form.type=='Individual'">
-            Date of Birth
-         </label>
-
-          <label  v-if="form.type=='Corporate'">
-            Date of Incorporation
-         </label>
-
-
-        <input v-show="form.type!==''"  v-model="form.date_of_birth"  label="Date of Birth" type="date" />
 
           <!-- <input type="checkbox" v-model="form.isActive" :checked="form.isActive"/> -->
 
@@ -399,18 +319,16 @@ const types = ref([
          -->
 
           <Dropdown
-                v-model="form.gender"
-                editable :options="gender"
-                optionLabel="name"
-                placeholder="Gender"
-                optionValue="name"
+                v-model="form.parent_location_id"
+                editable :options="locations.data"
+                optionLabel="location_name"
+                placeholder="Parent Location"
+                optionValue="id"
                 class="w-full md:w-14rem"
-                v-show="form.type=='Individual'"
+
                 />
-     <div class="flex flex-row justify-center p-1 capitalize">
-            <span class="text-xs">isActive</span>
-            <Checkbox v-model="form.isActive" value="form.isActive" :binary="true"  />
-         </div>
+
+
 
         <Button
           severity="info"
