@@ -14,6 +14,7 @@ class Farmer extends Model
 
 
     protected $guarded =['id'];
+
     public function contacts()
     {
         return $this->morphMany(Contact::class,'contactable');
@@ -22,5 +23,10 @@ class Farmer extends Model
     public function associates()
     {
         return $this->hasMany(Associate::class,'farmer_id','id');
+    }
+
+    public function media()
+    {
+        return $this->morphMany(Medium::class,'recordable');
     }
 }

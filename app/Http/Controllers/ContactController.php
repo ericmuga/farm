@@ -10,6 +10,7 @@ use App\Models\Farmer;
 // use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
+use PhpParser\Node\Expr\AssignOp\Concat;
 
 class ContactController extends Controller
 {
@@ -96,9 +97,13 @@ class ContactController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateContactRequest $request, Contact $contact)
+    public function update(Request $request)
     {
-        //
+        // dd('App\\Models\\'.$request['contactable_type']);
+        $request['contactable_type']='App\\Models\\'.$request['contactable_type'];
+        $contact=Contact::find($request->id);
+       $contact->update($request->all());
+
     }
 
     /**
@@ -107,5 +112,6 @@ class ContactController extends Controller
     public function destroy(Contact $contact)
     {
         $contact->delete();
+
     }
 }

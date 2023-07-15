@@ -4,8 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-use App\Http\Controllers\{FarmerController,ContactController,AssociateController,LocationController};
+use App\Services\ExportService;
+use App\Http\Controllers\{FarmerController,ContactController,AssociateController,LocationController, MediumController};
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -43,11 +43,17 @@ Route::middleware('auth')->group(function () {
 
 Route::resource('farmer', FarmerController::class);
 Route::get('exportFarmer',[FarmerController::class,'export'])->name('farmers.export');
+Route::get('addMedia',[FarmerController::class,'addMedia'])->name('farmers.addMedia');
+
+
 Route::resource('contact', ContactController::class);
 Route::resource('associates', AssociateController::class);
 Route::resource('locations', LocationController::class);
 Route::get('exportLocation',[LocationController::class,'export'])->name('locations.export');
+Route::resource('medium', MediumController::class);
+Route::get('exports/{route}',[ExportService::class,'export']);
 });
+
 
 
 

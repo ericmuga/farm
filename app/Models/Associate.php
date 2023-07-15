@@ -22,4 +22,9 @@ class Associate extends Model
     {
         return $this->belongsTo(Farmer::class);
     }
+
+    public function media()
+    {
+        return $this->morphMany(Medium::class,'recordable');
+    }
 }

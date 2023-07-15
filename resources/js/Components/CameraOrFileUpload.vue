@@ -17,81 +17,69 @@
     </div>
   </template>
 
-  <script setup>
-  import { ref, onMounted, onUnmounted, getCurrentInstance } from 'vue';
+  <script>
+  export default {
+    data() {
+      return {
+        isChecked: false,
+        stream: null,
+      };
+    },
+    methods: {
+      toggleMode() {
+        if (this.isChecked) {
+          this.startCamera();
+        } else {
+          this.stopCamera();
+        }
+      },
+      startCamera() {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then((stream) => {
+              const video = this.$refs.video;
+              video.srcObject = stream;
+              video.play();
+              this.stream = stream;
+            })
+            .catch((error) => {
+              console.error('Error accessing camera:', error);
+            });
+        } else {
+          console.error('getUserMedia is not supported in this browser.');
+        }
+      },
+      stopCamera() {
+        if (this.stream) {
+          const tracks = this.stream.getTracks();
+          tracks.forEach((track) => {
+            track.stop();
+          });
+          this.stream = null;
+        }
+        const video = this.$refs.video;
+        video.srcObject = null;
+      },
+      takePhoto() {
+        const video = this.$refs.video;
+        const canvas = this.$refs.canvas;
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/png');
 
-  const isChecked = ref(false);
-  const videoRef = ref(null);
-  const canvasRef = ref(null);
-  let stream = null;
+        // Emit an event to the parent component with the captured photo
+        this.$emit('photo-captured', imageData);
 
-  const emit = getCurrentInstance().emit; // Access the emit function
-
-  function toggleMode() {
-    if (isChecked.value) {
-      startCamera();
-    } else {
-      stopCamera();
-    }
-  }
-
-  function startCamera() {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then((str) => {
-          const video = videoRef.value;
-          video.srcObject = str;
-          video.play();
-          stream = str;
-        })
-        .catch((error) => {
-          console.error('Error accessing camera:', error);
-        });
-    } else {
-      console.error('getUserMedia is not supported in this browser.');
-    }
-  }
-
-  function stopCamera() {
-    if (stream) {
-      const tracks = stream.getTracks();
-      tracks.forEach((track) => {
-        track.stop();
-      });
-      stream = null;
-    }
-    const video = videoRef.value;
-    video.srcObject = null;
-  }
-
-  function takePhoto() {
-    const video = videoRef.value;
-    const canvas = canvasRef.value;
-    const context = canvas.getContext('2d');
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageData = canvas.toDataURL('image/png');
-
-    emit('photo-captured', imageData); // Emit the 'photo-captured' event with the photo data
-
-    // You can also reset the camera mode after taking a photo
-    isChecked.value = false;
-    stopCamera(); // Stop the camera stream when the photo is taken
-  }
-
-  function uploadFile(event) {
-    const file = event.target.files[0];
-    // Handle the uploaded file here, e.g., send it to the server
-  }
-
-  onMounted(() => {
-    // Initialize the camera when the component is mounted
-    if (isChecked.value) {
-      startCamera();
-    }
-  });
-
-  onUnmounted(() => {
-    // Stop the camera when the component is unmounted
-    stopCamera();
-  });
+        // You can also reset the camera mode after taking a photo
+        this.isChecked = false;
+        this.stopCamera(); // Stop the camera stream when the photo is taken
+      },
+      uploadFile(event) {
+        const imageData =event.target.files[0];
+        this.$emit('photo-captured', imageData);
+        // Handle the uploaded file here, e.g., send it to the server
+      },
+    },
+  };
   </script>

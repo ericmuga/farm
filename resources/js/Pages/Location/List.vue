@@ -161,11 +161,7 @@ const location_types = ref([
                                          severity="info"
                                          @click="showCreateModal()"
                                          rounded/>
-                                    <button
-                                     @click="showclicked()"
-                                    >
-                                    Click Me
-                                    </button>
+
 
 
 
@@ -176,9 +172,10 @@ const location_types = ref([
                                     <div>
                                         <Pagination :links="locations.meta.links" />
                                     </div>
+
                                     <!-- <Modal :show="showModal.value">
-                                        <FilterPane :propsData="columnListing" />
-                                    </Modal> -->
+                                          <FilterPane :propsData="columnListing" />
+                                        </Modal> -->
                                       <!-- <FilterPane :propsData="columnListing" /> -->
 
                                 </template>

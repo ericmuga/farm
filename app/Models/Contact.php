@@ -17,5 +17,7 @@ class Contact extends Model
       return $this->morphTo();
   }
 
+  protected $guarded=['id'];
+
 
 }

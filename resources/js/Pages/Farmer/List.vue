@@ -1,21 +1,21 @@
 
 <script setup>
+import Modal from '@/Components/Modal.vue'
+import Drop from '@/Components/Drop.vue'
 import SearchBox from '@/Components/SearchBox.vue'
+import DownloadButton from '@/Components/DownloadButton.vue'
+import Pagination from '@/Components/Pagination.vue'
+import Swal from 'sweetalert2'
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import Toolbar from 'primevue/toolbar';
 import { useForm } from '@inertiajs/vue3'
-// import { Inertia } from '@inertiajs/inertia';
 import { router } from '@inertiajs/vue3'
-import debounce from 'lodash/debounce';
 import {watch, ref,provide,onMounted} from 'vue';
-import Pagination from '@/Components/Pagination.vue'
-import Swal from 'sweetalert2'
-import Modal from '@/Components/Modal.vue'
-import Drop from '@/Components/Drop.vue'
-import CustomCheckbox from '@/components/CustomCheckbox.vue';
-import { fromJSON } from 'postcss';
+
+
+
 import {useLocation} from '@/Composables/useLocation.js'
 import FileUpload from 'primevue/fileupload';
 import { useToast } from "primevue/usetoast";
@@ -67,6 +67,7 @@ const handleValueUpdate = (newValue) => {
   // Handle the updated value as needed
 };
 provide('emit', handleValueUpdate);
+
 const createOrUpdateItem=()=>{
 //   fetchLocation();
 
@@ -76,6 +77,7 @@ const createOrUpdateItem=()=>{
         else
      form.patch(route('farmer.update',form.id_no))
       showModal.value=false;
+
     Swal.fire(`Farmer ${mode.state}ed Successfully!`,'','success');
 
 }
@@ -152,7 +154,10 @@ const types = ref([
 
     <AuthenticatedLayout @add="showModal=true">
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">Farmers {{ farmers.data.length }}</h2>
+            <h2 class="text-xl font-semibold text-gray-800">Farmers
+              <Button icon="pi pi-user" :label=farmers.meta.total severity="info" rounded outlined aria-label="User" />
+            </h2>
+
         </template>
 
         <div class="py-6">
@@ -166,8 +171,8 @@ const types = ref([
                             <Toolbar>
                                 <template #start>
                                     <!-- <Button label="New" icon="pi pi-plus" class="mr-2" /> -->
-                                    <div class="card flex justify-content-center">
-                                        <Toast />
+                                    <div class="flex card justify-content-center">
+
                                         <FileUpload mode="basic" name="demo[]" url="./upload.php" accept="image/*" :maxFileSize="1000000" @upload="onUpload" :auto="true" chooseLabel="Upload" />
                                     </div>
                                         <!-- <i class="mr-2 pi pi-bars p-toolbar-separator" /> -->
@@ -197,10 +202,10 @@ const types = ref([
                                     <template #end>
 
                                        <div class="p-2">
-                                       <a :href="route('farmers.export')">
+                                       <!-- <a :href="route('farmers.export')">
                                         <Button label="Download" icon="pi pi-download" class="p-button-success" />
-                                    </a>
-
+                                    </a> -->
+                                        <DownloadButton :link="route('farmers.export')"/>
                                        </div>
 
 
@@ -213,7 +218,7 @@ const types = ref([
                                             <table class="w-full text-sm text-left text-gray-500">
                                                 <thead class="text-xs text-gray-700 uppercase bg-gray-50">
 
-                                                    <tr class="bg-slate-300 ">
+                                                    <tr class="bg-slate-300"  >
                                                          <th scope="col" class="px-6 py-3">
                                                             Name
                                                         </th>
@@ -236,6 +241,9 @@ const types = ref([
                                                         <th scope="col" class="px-6 py-3 text-center">
                                                           Contacts
                                                         </th>
+                                                        <th scope="col" class="px-6 py-3 text-center">
+                                                          Associates
+                                                        </th>
 
                                                         <th scope="col" class="px-6 py-3">
                                                            Actions
@@ -247,8 +255,11 @@ const types = ref([
                                                 </thead>
                                                 <tbody>
 
-                                                    <tr v-for="farmer in farmers.data" :key="farmer.id"
-                                                    class="bg-white border-b hover:bg-slate-100 hover:text-black"
+                                                    <tr
+                                                      v-for="farmer in farmers.data"
+                                                       :key="farmer.id"
+                                                       @click="navigateTo(farmer.id)"
+                                                       class="bg-white border-b hover:bg-slate-100 hover:text-black"
 
                                                     >
 
@@ -295,6 +306,15 @@ const types = ref([
 
 
                                                     </td>
+                                                    <td class="px-3 py-2 text-xs text-center rounded-sm">
+
+
+                                                               <Button icon="pi pi-book" severity="info" rounded outlined
+                                                                 :label="farmer.associates.length"
+                                                                 disabled=true />
+
+
+                                                    </td>
                                                     <td>
                                                        <div class="flex flex-row">
                                                           <Drop  :drop-route="route('farmer.destroy',{id:farmer.id})"/>
@@ -304,12 +324,13 @@ const types = ref([
                                                                       text
                                                             @click="showUpdateModal(farmer)"
                                                                       />
+
                                                              <Button
                                                                       icon="pi pi-user"
                                                                       severity="info"
                                                                       text
-                                                            @click="navigateTo(farmer.id)"
-                                                                      />
+                                                                      @click="navigateTo(farmer.id)"
+                                                            />
                                                        </div>
                                                     </td>
 

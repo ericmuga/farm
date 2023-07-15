@@ -23,6 +23,7 @@ import { Link } from '@inertiajs/vue3'
 import ToastService from 'primevue/toastservice';
 import PrimeVue from 'primevue/config';
 import 'primevue/resources/themes/lara-light-indigo/theme.css';
+import FileUpload from 'primevue/fileupload';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Farms';
 

@@ -5,13 +5,13 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import Toolbar from 'primevue/toolbar';
 import { useForm } from '@inertiajs/vue3'
-// import { Inertia } from '@inertiajs/inertia';
+
 import { router } from '@inertiajs/vue3'
-import debounce from 'lodash/debounce';
 import {watch, ref,onMounted,provide} from 'vue';
 import Pagination from '@/Components/Pagination.vue'
 import Swal from 'sweetalert2'
 import Modal from '@/Components/Modal.vue'
+
 import Drop from '@/Components/Drop.vue'
 import Card from '@/Pages/Farmer/Card.vue'
 
@@ -29,6 +29,8 @@ const props= defineProps({
 
 });
 
+let model =''
+
 const form= useForm({
    'contactable_type':'',
    'contactable_id':'',
@@ -37,7 +39,9 @@ const form= useForm({
    'farmer_id':props.farmer.data.id,
    'isPrimary':true,
    'name':null
+   ,'id':null
 })
+
 
 
 const fetchLocation =  async () => {
@@ -51,16 +55,27 @@ const fetchLocation =  async () => {
   }
 };
 
+const form2 =useForm({
+    /**
+     *   $table->id();
+            $table->string('media_type');
+            $table->string('url');
+            $table->string('description');
+            $table->morphs('recordable');
+            $table->timestamps();
+     */
+
+     'media_type':'',
+     'url':'',
+     'description':'',
+     'recordable_type':'',
+     'recordable_id':props.farmer.data.id,
+     'photo':null
+
+})
 
 
 
-
- const handlePhotoCaptured=(photoData)=> {
-      // Handle the captured photo data here
-    }
-    const handleFileUploaded=(fileData)=> {
-      // Handle the uploaded file data here
-    }
 
 
 
@@ -69,7 +84,10 @@ const handleValueUpdate = (newValue) => {
   form.isActive = newValue;
   // Handle the updated value as needed
 };
+
 provide('emit', handleValueUpdate);
+
+
 const createOrUpdateItem=()=>{
       fetchLocation();
 
@@ -77,28 +95,66 @@ const createOrUpdateItem=()=>{
 
           form.post(route('contact.store'))
         else
-     form.patch(route('contact.update',form.id_no))
+     form.patch(route('contact.update',form.id))
       showModal.value=false;
+      form.reset();
     Swal.fire(`Contact/Associate ${mode.state}ed Successfully!`,'','success');
 
 }
 
 
+
+
 let mode= { state: 'Create' };
+let showModal=ref(false);
 
 
-
-  let showModal=ref(false);
-
-
-const showCreateModal=()=>{
+const showContactCreateModal=()=>{
     fetchLocation()
+    model='Contact'
     mode.state='Create'
     form.reset()
 
     showModal.value=true
 
 }
+
+
+const showContactUpdateModal=(contact)=>{
+
+    //assign current values
+    fetchLocation()
+    const regex = /App\\Models\\/g; //  Regular expression to match "App\Models\"
+
+   if(Object.hasOwnProperty(contact,'contactable_type'))
+     console.log(contact.contactable_type)
+
+    form.contactable_type=contact.contactable_type.replace(regex,'')
+
+   form.contactable_id=contact.contactable_id
+   form.id=contact.id
+   form.contact=contact.contact
+   form.contact_type=contact.contact_type
+   form.farmer_id=contact.farmer_id
+   form.isPrimary=contact.isPrimary
+   if (Object.hasOwnProperty(contact,'associate_name'))
+     form.name=contact.associate_name
+
+
+   model='Contact'
+   mode.state='Update'
+   showModal.value=true
+}
+
+const showMediaCreateModal=()=>{
+    fetchLocation()
+    model='Media'
+    mode.state='Create'
+    form.reset()
+    showModal.value=true
+}
+
+
 
 const navigateTo=(contactId)=>{
   router.visit(`/contact/${contactId}`);
@@ -131,6 +187,26 @@ const contactTypes = ref([
 ]);
 
 
+
+
+
+const { data, setData, post } = useForm({
+  // Define your form fields here
+  photo: null,
+  'media_type':'photo',
+  'description':'',
+
+  });
+
+// Handle the photo captured by the ModalCameraUploader component
+function handlePhotoCaptured(imageData) {
+form2.photo=imageData
+}
+
+// Handle form submission
+function submitForm() {
+ form2.post(route('medium.store'))
+}
 
 
 
@@ -174,12 +250,12 @@ const contactTypes = ref([
 
             </TabPanel>
             <TabPanel header="Contacts/Associates">
-                <div class=" text-center">
+                <div class="text-center ">
                      <Button
                                          label="Add"
                                          icon="pi pi-plus"
                                          severity="success"
-                                         @click="showCreateModal()"
+                                         @click="showContactCreateModal()"
                                          rounded
                                     ></Button>
                 </div>
@@ -187,10 +263,10 @@ const contactTypes = ref([
 
                     <div class="col-span-1 text-center">
 
-                    <div class="w-full  m-3 text center bg-orange-400 rounded text-center text-black">
+                    <div class="w-full m-3 text-center text-black bg-orange-400 rounded text center">
                        Primary Contacts
                     </div>
-                <table class="w-full text-sm  text-gray-500  text-center">
+                <table class="w-full text-sm text-center text-gray-500">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr class="rounded-md bg-slate-300 ">
                                 <th scope="col" class="px-6 py-3">
@@ -200,7 +276,7 @@ const contactTypes = ref([
                                 <th scope="col" class="px-6 py-3">
                                   Contact
                                 </th>
-                                <th scope="col" class="px-6 py-3">
+                                <th scope="col" class="px-6 py-3 text-center">
                                   Actions
                                 </th>
                             </tr>
@@ -220,14 +296,14 @@ const contactTypes = ref([
                                  <td class="px-3 py-2 text-xs ">
                                     {{ contact.contact }}
                                 </td>
-                                <td>
+                                <td class="text-center">
                                                        <div class="flex flex-row">
                                                           <Drop  :drop-route="route('contact.destroy',{id:contact.id})"/>
                                                             <Button
                                                                       icon="pi pi-pencil"
                                                                       severity="info"
                                                                       text
-                                                            @click="showUpdateModal(contact)"
+                                                            @click="showContactUpdateModal(contact)"
                                                                       />
                                                              <!-- <Button
                                                                       icon="pi pi-user"
@@ -242,8 +318,8 @@ const contactTypes = ref([
 
                 </table>
                 </div>
-                <div class=" col-span-1">
-                   <div class="w-full m-3 text center bg-cyan-200 rounded text-center">
+                <div class="col-span-1 ">
+                   <div class="w-full m-3 text-center rounded text center bg-cyan-200">
                       Associates
                     </div>
 
@@ -268,7 +344,9 @@ const contactTypes = ref([
                             <tbody>
 
 
-                                <tr v-for="contact in farmer.data.associates" :key="contact"
+                                <tr
+
+                                v-for="contact in farmer.data.associates" :key="contact"
                                 class="bg-white border-b hover:bg-slate-100 hover:text-black"
 
                                 >
@@ -294,12 +372,12 @@ const contactTypes = ref([
 
                                     <div class="flex flex-row">
                                                           <Drop  :drop-route="route('associates.destroy',{id:contact.id})"/>
-                                                            <Button
+                                                            <!-- <Button
                                                                       icon="pi pi-pencil"
                                                                       severity="info"
                                                                       text
-                                                            @click="showUpdateModal(cont)"
-                                                                      />
+                                                            @click="showContactUpdateModal(contact)"
+                                                                      /> -->
                                                              <!-- <Button
                                                                       icon="pi pi-user"
                                                                       severity="info"
@@ -318,9 +396,13 @@ const contactTypes = ref([
 
             </TabPanel>
             <TabPanel header="Media">
-                <p>
-                  Media Model will come here
-                </p>
+                <Button
+                        label="Add"
+                        icon="pi pi-plus"
+                        severity="success"
+                        @click="showMediaCreateModal()"
+                        rounded
+                />
             </TabPanel>
             <TabPanel header="Farms">
                 <p>
@@ -342,7 +424,7 @@ const contactTypes = ref([
 
         <Modal :show="showModal" @close="showModal=false" >
 
-     <div class="flex flex-col p-4 rounded-sm">
+     <div class="flex flex-col p-4 rounded-sm" v-if="model=='Contact'" >
 
         <div  class="w-full p-2 mb-2 tracking-wide text-center text-white rounded-sm bg-slate-500"> {{mode.state}}
            <div v-if="form.contactable_type==''">
@@ -418,6 +500,25 @@ const contactTypes = ref([
 </div>
 
     </form>
+
+     </div>
+      <div v-else-if="model=='Media'" class="p-4">
+        <div  class="w-full p-4 mb-2 tracking-wide text-center text-white rounded-sm bg-slate-500"> {{mode.state}} Media Meta Data</div>
+              <form @submit.prevent="submitForm()" class="flex flex-col text-center ">
+                     <Dropdown :options="['ID_Photo','AC_Photo','Profile_photo','Farm_Photo']" placeholder="Select Media Type" v-model="form2.media_type"/>
+                     <Dropdown :options="['Farmer','Director','Other Contact','Farm']" placeholder="Select Owner" v-model="form2.recordable_type" />
+                     <InputText label="Description" v-model="form2.description" placeholder="Description" class="text-center"/>
+                     <CameraOrFileUpload class="m-3 "  @photo-captured="handlePhotoCaptured" />
+                     <Button
+                       label= Save
+                       severity="info"
+                       icon="pi pi-send"
+                       type="submit"
+                       class="icon-right"
+                      />
+                      <Button label="Cancel" severity="warning" icon="pi pi-cancel" @click="showModal=false"/>
+                </form>
+
 
      </div>
 

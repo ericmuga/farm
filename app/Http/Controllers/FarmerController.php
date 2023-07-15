@@ -19,10 +19,11 @@ class FarmerController extends Controller
     public function index(Request $request)
     {
 
+
          $farmers=FarmerResource::collection(
               (new SearchService(new Farmer()))
-                ->with(['contacts','associates'])
-                ->counts(['contacts'])
+                ->with(['contacts','associates','media'])
+                ->counts(['contacts','associates','media'])
                 // ->sums(['relatedModel4' => 'column'])
               ->search($request)
 
@@ -80,19 +81,26 @@ class FarmerController extends Controller
     public function show($id)
     {
         // This view will show farmer details
-        $f=Farmer::firstWhere('id',$id)->load('contacts','associates','associates.contacts');
+        $f=Farmer::firstWhere('id',$id)->load('contacts','associates','associates.contacts','media');
         // dd($farmer);
         $farmer=FarmerResource::make($f);
        return inertia('Farmer/Show',compact('farmer'));
     }
 
+
+     public function addMedia(Request $request)
+     {
+        //upload the media
+        //generate media url
+        //record the meta data in the medium model
+
+
+     }
+
+
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Farmer $farmer)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
