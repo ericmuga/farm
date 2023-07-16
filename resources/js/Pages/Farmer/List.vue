@@ -260,7 +260,7 @@ const types = ref([
                                                     <tr
                                                       v-for="farmer in farmers.data"
                                                        :key="farmer.id"
-                                                       @click="navigateTo(farmer.id)"
+                                                       @dblclick="navigateTo(farmer.id)"
                                                        class="bg-white border-b hover:bg-slate-100 hover:text-black"
 
                                                     >
