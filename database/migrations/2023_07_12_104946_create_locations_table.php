@@ -16,8 +16,6 @@ return new class extends Migration
             $table->string('location_type');
             $table->string('location_name');
             $table->foreignId('parent_location_id')->nullable();
-            $table->string('latitude')->nullable();
-            $table->string('longitude')->nullable();
             $table->timestamps();
         });
     }

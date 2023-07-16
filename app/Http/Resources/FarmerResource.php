@@ -34,7 +34,9 @@ class FarmerResource extends JsonResource
                     'media'=>$this->whenLoaded('media'),
                     'created_at'=>Carbon::parse($this->created_at)->diffForHumans(),
                     'updated_at'=>Carbon::parse($this->updated_at)->diffForHumans(),
-                    'created_geolocation'=>$this->created_geolocation
+                    'created_geolocation'=>$this->created_geolocation,
+                    'updated_geolocation'=>$this->updated_geolocation
+
                ];
     }
 }

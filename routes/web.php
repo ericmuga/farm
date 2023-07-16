@@ -51,7 +51,7 @@ Route::resource('associates', AssociateController::class);
 Route::resource('locations', LocationController::class);
 Route::get('exportLocation',[LocationController::class,'export'])->name('locations.export');
 Route::resource('medium', MediumController::class);
-Route::get('exports/{route}',[ExportService::class,'export']);
+// Route::get('exports/{route}',[ExportService::class,'export']);
 });
 
 

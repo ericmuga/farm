@@ -22,60 +22,31 @@ class LocationController extends Controller
 
         $locations=LocationResource::collection(
             (new SearchService(new Location()))
-            //   ->with(['contacts','associates'])
+              ->with(['parent'])
             //   ->counts(['contacts'])
               // ->sums(['relatedModel4' => 'column'])
             ->search($request)
 
         );
-
-      //   dd($farmers);
-
     return inertia('Location/List',compact('locations'));
 
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(Request $request)
-    {
 
-
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         //
-        // dd($request);
-        Location::forceCreate($request->all());
+        $values=$request->except('photo','created_geolocation');
+        $savedValues=array_merge($values,[
+                                'created_by_user_id'=>$request->user()->id,
+                                'created_geolocation'=>json_encode($request->created_geolocation)
+                                ]);
+        Location::create($savedValues);
 
-        return redirect(route('locations.index',$request));
+        return redirect(route('locations.index'));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Location $location)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Location $location)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateLocationRequest $request, Location $location)
+    public function update(Request $request)
     {
         //
     }

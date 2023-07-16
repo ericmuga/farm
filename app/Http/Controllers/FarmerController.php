@@ -82,9 +82,10 @@ class FarmerController extends Controller
     {
         // This view will show farmer details
         $f=Farmer::firstWhere('id',$id)->load('contacts','associates','associates.contacts','media');
-        // dd($farmer);
         $farmer=FarmerResource::make($f);
-       return inertia('Farmer/Show',compact('farmer'));
+
+    //    dd($farmer);
+        return inertia('Farmer/Show',compact('farmer'));
     }
 
 

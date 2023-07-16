@@ -21,7 +21,9 @@ import FileUpload from 'primevue/fileupload';
 import { useToast } from "primevue/usetoast";
 onMounted(() => {
     fetchLocation()
+
 });
+
 
 
 
@@ -29,13 +31,17 @@ const fetchLocation =  async () => {
   try {
     const { latitude, longitude } = await useLocation().getLocation();
     // Do something with the latitude and longitude
-   form.latitude=latitude
-   form.longitude=longitude
+    if (mode.state=='Create')
+   form.created_geolocation={latitude,longitude}
+   else form.updated_geolocation={latitude,longitude}
+
 // alert(form.longitude)
     // console.log(form.latitude)
 
   } catch (error) {
-    // Handle the error
+    if (mode.state=='Create')
+   form.created_geolocation={error}
+   else form.updated_geolocation={error}
   }
 };
 
@@ -50,8 +56,9 @@ const form= useForm({
    'location_name':'',
    'location_type':'',
    'parent_location_id':'',
-   'latitude':null,
-   'longitude':null
+   'updated_geolocation':null,
+   'created_geolocation':null,
+   'id':null
 
 
 })
@@ -65,12 +72,37 @@ const createOrUpdateItem=()=>{
 //   fetchLocation();
 
     if (mode.state=='Create')
+   {
+      form.post(route('locations.store'),
+      {
 
-          form.post(route('locations.store'))
+        onSuccess: ()=>{
+            Swal.fire('Success!',`Location ${mode.state}ed Successfully!`,'success');
+        },
+        onError:()=>{
+            Swal.fire('Error','An Error was encountered when creating the Location','error');
+        }
+      }
+      )
+
+   }
+
         else
-     form.patch(route('locations.update',form.id_no))
+        {
+            if (form.id) form.patch(route('locations.update',form.id),
+
+
+            {   onSuccess: ()=>{
+                    Swal.fire('Success!',`Location ${mode.state}ed Successfully!`,'success');
+                },
+                onError:()=>{
+                    Swal.fire('Error','An Error was encountered when updating the Location','error');
+                }
+            })
+        }
+
       showModal.value=false;
-    Swal.fire(`location ${mode.state}ed Successfully!`,'','success');
+
 
 }
 
@@ -104,6 +136,7 @@ const showUpdateModal=(location)=>{
     form.location_name=location.location_name
     form.location_type=location.location_type
     form.parent_location_id=location.parent_location_id
+    form.id=location.id
     showModal.value=true
 
 
@@ -236,8 +269,11 @@ const location_types = ref([
                                                         {{ location.location_name}}
                                                     </td>
 
-                                                    <td class="px-3 py-2 text-xs font-bold">
-                                                        {{ location.parent_location }}
+                                                    <td v-if="location.parent" class="px-3 py-2 text-xs font-bold text-center">
+                                                        {{ location.parent.location_name }}
+                                                    </td>
+                                                    <td v-else class="px-3 py-2 text-xs font-bold">
+
                                                     </td>
                                                     <!--
                                                         <td class="px-3 py-2 text-xs text-center rounded-sm">
@@ -301,21 +337,21 @@ const location_types = ref([
 
       <div class="flex flex-col justify-center ">
 
-        <Dropdown v-model="form.location_type" editable :options="location_types"
-        optionLabel="name" placeholder="Location Type" optionValue="name" class="w-full md:w-14rem" />
+        <Dropdown
+          v-model="form.location_type"
+          editable
+          :options="location_types"
+            optionLabel="name"
+            placeholder="Location Type"
+            optionValue="name"
+            class="w-full md:w-14rem"
+        />
+
         <InputText
            placeholder="Location Name"
            v-model="form.location_name"
         />
-
-
-
-          <!-- <input type="checkbox" v-model="form.isActive" :checked="form.isActive"/> -->
-
-          <!-- <custom-checkbox :value="form.isActive" @update:value="handleValueUpdate" label="isActive"></custom-checkbox>
-         -->
-
-          <Dropdown
+ <Dropdown
                 v-model="form.parent_location_id"
                 editable :options="locations.data"
                 optionLabel="location_name"

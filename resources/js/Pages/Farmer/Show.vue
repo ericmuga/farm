@@ -19,15 +19,48 @@ import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 
 import CameraOrFileUpload from '@/Components/CameraOrFileUpload.vue';
+import {useLocation} from '@/Composables/useLocation.js'
+import Map from '@/Components/Map.vue';
 
 onMounted(() => {
     fetchLocation()
-})
 
+
+
+if (props.farmer.data.media.length>0){
+    currentImage=ref('/storage/'+removeLeftSubstring(props.farmer.data.media[0].url,'public/'));
+    currentImageId=ref(props.farmer.data.media[0].id);
+}
+
+})
+   let currentImage=ref('');
+let currentImageId=ref('');
 const props= defineProps({
     farmer:Object,
 
 });
+
+const removeLeftSubstring=(str, substring)=> {
+  const index = str.indexOf(substring);
+  if (index !== -1) {
+    return str.substring(index + substring.length);
+  }
+  return str;
+}
+
+
+
+
+const updateImage=(media)=>{
+    currentImage.value='/storage/'+removeLeftSubstring(media.url,'public/')
+  currentImageId=media.id
+}
+
+
+
+const createdGeolocation = JSON.parse(props.farmer.data.created_geolocation);
+const latitude = createdGeolocation.latitude;
+const longitude = createdGeolocation.longitude;
 
 let model =''
 
@@ -47,32 +80,30 @@ const form= useForm({
 const fetchLocation =  async () => {
   try {
     const { latitude, longitude } = await useLocation().getLocation();
-    form.latitude=latitude
-    form.longitude=longitude
+    form.geolocation={latitude,longitude}
 
  } catch (error) {
     // Handle the error
+    form.geolocation={error}
   }
 };
 
 const form2 =useForm({
-    /**
-     *   $table->id();
-            $table->string('media_type');
-            $table->string('url');
-            $table->string('description');
-            $table->morphs('recordable');
-            $table->timestamps();
-     */
-
      'media_type':'',
-     'url':'',
      'description':'',
      'recordable_type':'',
      'recordable_id':props.farmer.data.id,
-     'photo':null
+     'photo':null,
+     'created_geolocation':null,
 
 })
+
+const contactable_types=[
+
+    {'name':'Farmer','code':'App\\Models\\Farmer'},
+    {'name':'Director','code':'App\\Models\\Associate'},
+    {'name':'Other Contact','code':'App\\Models\\Associate'}
+]
 
 
 
@@ -204,8 +235,37 @@ form2.photo=imageData
 }
 
 // Handle form submission
-function submitForm() {
- form2.post(route('medium.store'))
+
+const submitForm= async()=> {
+
+    try {
+    const { latitude, longitude } = await useLocation().getLocation();
+    form2.created_geolocation={latitude,longitude}
+
+ } catch (error) {
+    // Handle the error
+    // console.log(error)
+    form2.geolocation={error}
+  }
+
+     form2.post(route('medium.store'),
+     {
+        preserveScroll: true,
+         onSuccess: () => {form2.reset()
+            showModal.value=false
+            Swal.fire('Success','Media Uploaded Successfully!','success');
+
+        },
+        onError: errors => {
+            Swal.fire('Error','Some errors were encountered when submitting the request'+errors,'error')
+            showModal.value=false
+        },
+     }
+
+     )
+
+     showModal.value=false;
+
 }
 
 
@@ -403,11 +463,46 @@ function submitForm() {
                         @click="showMediaCreateModal()"
                         rounded
                 />
+                <div
+                 v-show="farmer.data.media.length>0"
+                class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 place-items-center gap-2 rounded-md shadow">
+                 <!-- <div class="col-span-1 shadow-md p-3 m-2">
+                   <ul>
+                    <li v-for="media in  farmer.data.media" :key="media.id"
+                     class="w-full p-3 rounded-sm border-1 shadow-sm hover:bg-slate-400 hover:text-white text-center"
+                    >{{ media.description }}</li>
+                   </ul>
+                 </div>
+                  <div class="col-span 1 shadow-md p-3 m-2">
+                   <img src="" alt="">
+                 </div> -->
+
+
+
+                    <div class="col-span-1 shadow-md p-3 m-2 w-full">
+                        <ul>
+                        <li v-for="(media, index) in farmer.data.media"
+                            :key="media.url"
+                            class="w-full p-3 rounded-sm border-1 shadow-sm hover:bg-slate-400 hover:text-white text-center"
+                            @mouseover="updateImage(media)">
+                            {{ media.description }}
+                        </li>
+                        </ul>
+                    </div>
+                    <div class="col-span-1 shadow-md p-3 m-2 w-full">
+                        <img :src="currentImage" alt="" :key="currentImage" class="text-center rounded-md shadow">
+                        <Drop :drop-route="route('medium.destroy',currentImageId)"/>
+                    </div>
+                    </div>
+
+
             </TabPanel>
             <TabPanel header="Farms">
-                <p>
-                 Farm Model will come here
-                </p>
+                <div>
+                <h1>Map Component Example</h1>
+                <!-- {{ farmer.data.created_geolocation.latitude }} -->
+                <Map :latitude=latitude :longitude=longitude />
+            </div>
             </TabPanel>
             <TabPanel header="Visits">
                 <p>
@@ -506,8 +601,12 @@ function submitForm() {
         <div  class="w-full p-4 mb-2 tracking-wide text-center text-white rounded-sm bg-slate-500"> {{mode.state}} Media Meta Data</div>
               <form @submit.prevent="submitForm()" class="flex flex-col text-center ">
                      <Dropdown :options="['ID_Photo','AC_Photo','Profile_photo','Farm_Photo']" placeholder="Select Media Type" v-model="form2.media_type"/>
-                     <Dropdown :options="['Farmer','Director','Other Contact','Farm']" placeholder="Select Owner" v-model="form2.recordable_type" />
                      <InputText label="Description" v-model="form2.description" placeholder="Description" class="text-center"/>
+                     <Dropdown :options=contactable_types
+                                 optionValue="code"
+                                 optionLabel="name"
+                                placeholder="Select Owner" v-model="form2.recordable_type" />
+
                      <CameraOrFileUpload class="m-3 "  @photo-captured="handlePhotoCaptured" />
                      <Button
                        label= Save

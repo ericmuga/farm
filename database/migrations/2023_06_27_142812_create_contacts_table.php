@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id();
             $table->morphs('contactable');
             $table->string('contact');
-            $table->string('contact_type');
+            $table->string('contact_type');//this will hold delegation values(farmer, other contact, director)
             $table->boolean('isPrimary');
-            $table->json('created_geolocation')->nullable();
-            $table->json('updated_geolocation')->nullable();
             $table->softDeletesTz();
             $table->timestamps();
         });

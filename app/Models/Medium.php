@@ -9,6 +9,7 @@ class Medium extends Model
 {
     use HasFactory;
 
+   protected $guarded=['id'];
    public function recordable()
    {
     return $this->morphTo();

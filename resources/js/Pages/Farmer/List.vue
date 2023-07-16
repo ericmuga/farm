@@ -19,6 +19,8 @@ import {watch, ref,provide,onMounted} from 'vue';
 import {useLocation} from '@/Composables/useLocation.js'
 import FileUpload from 'primevue/fileupload';
 import { useToast } from "primevue/usetoast";
+
+
 onMounted(() => {
     fetchLocation()
 });
@@ -30,10 +32,10 @@ const fetchLocation =  async () => {
    form.latitude=latitude
    form.longitude=longitude
 // alert(form.longitude)
-    // console.log(form.latitude)
+    console.log(latitude)
 
   } catch (error) {
-    // Handle the error
+   form.geoLocation={error}
   }
 };
 
