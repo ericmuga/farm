@@ -29,4 +29,9 @@ class Farmer extends Model
     {
         return $this->morphMany(Medium::class,'recordable');
     }
+
+    public function farms()
+    {
+        return $this->hasMany(Farm::class);
+    }
 }

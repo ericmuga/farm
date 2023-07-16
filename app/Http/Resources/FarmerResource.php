@@ -32,6 +32,7 @@ class FarmerResource extends JsonResource
                     'contacts'=>$this->whenLoaded('contacts'),
                     'associates'=>$this->whenLoaded('associates'),
                     'media'=>$this->whenLoaded('media'),
+                    'farms'=>$this->whenLoaded('farms'),
                     'created_at'=>Carbon::parse($this->created_at)->diffForHumans(),
                     'updated_at'=>Carbon::parse($this->updated_at)->diffForHumans(),
                     'created_geolocation'=>$this->created_geolocation,

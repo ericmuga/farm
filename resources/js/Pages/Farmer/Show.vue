@@ -33,11 +33,16 @@ if (props.farmer.data.media.length>0){
 }
 
 })
-   let currentImage=ref('');
+let currentImage=ref('');
 let currentImageId=ref('');
+let currentFarm=ref('');
+let currentFarmId=ref('');
+let currentFarmLatitude=ref('');
+let currentFarmLongitude=ref('');
+
 const props= defineProps({
     farmer:Object,
-
+    locations:Object,
 });
 
 const removeLeftSubstring=(str, substring)=> {
@@ -54,6 +59,15 @@ const removeLeftSubstring=(str, substring)=> {
 const updateImage=(media)=>{
     currentImage.value='/storage/'+removeLeftSubstring(media.url,'public/')
   currentImageId=media.id
+}
+
+const updateFarm=(farm)=>{
+
+    currentFarm.value=farm.description
+  currentFarmId=farm.id
+  const createdGeolocation = JSON.parse(farm.created_geolocation);
+  currentFarmLatitude=createdGeolocation.latitude
+  currentFarmLongitude=createdGeolocation.longitude
 }
 
 
@@ -97,6 +111,16 @@ const form2 =useForm({
      'created_geolocation':null,
 
 })
+
+const form3 =useForm({
+     'id':null,
+     'location_id':'',
+     'farmer_id':props.farmer.data.id,
+     'created_geolocation':null,
+
+})
+
+
 
 const contactable_types=[
 
@@ -181,7 +205,15 @@ const showMediaCreateModal=()=>{
     fetchLocation()
     model='Media'
     mode.state='Create'
-    form.reset()
+    form2.reset()
+    showModal.value=true
+}
+
+const showFarmCreateModal=()=>{
+    fetchLocation()
+    model='Farm'
+    mode.state='Create'
+    form3.reset()
     showModal.value=true
 }
 
@@ -265,6 +297,39 @@ const submitForm= async()=> {
      )
 
      showModal.value=false;
+
+}
+
+const submitForm3= async()=> {
+
+
+try {
+const { latitude, longitude } = await useLocation().getLocation();
+form3.created_geolocation={latitude,longitude}
+
+} catch (error) {
+// Handle the error
+// console.log(error)
+form3.geolocation={error}
+}
+
+ form3.post(route('farms.store'),
+ {
+    preserveScroll: true,
+     onSuccess: () => {form3.reset()
+        showModal.value=false
+        Swal.fire('Success','Farm Created Successfully!','success');
+
+    },
+    onError: errors => {
+        Swal.fire('Error','Some errors were encountered when submitting the request'+errors,'error')
+        showModal.value=false
+    },
+ }
+
+ )
+
+ showModal.value=false;
 
 }
 
@@ -466,20 +531,7 @@ const submitForm= async()=> {
                 <div
                  v-show="farmer.data.media.length>0"
                 class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 place-items-center gap-2 rounded-md shadow">
-                 <!-- <div class="col-span-1 shadow-md p-3 m-2">
-                   <ul>
-                    <li v-for="media in  farmer.data.media" :key="media.id"
-                     class="w-full p-3 rounded-sm border-1 shadow-sm hover:bg-slate-400 hover:text-white text-center"
-                    >{{ media.description }}</li>
-                   </ul>
-                 </div>
-                  <div class="col-span 1 shadow-md p-3 m-2">
-                   <img src="" alt="">
-                 </div> -->
-
-
-
-                    <div class="col-span-1 shadow-md p-3 m-2 w-full">
+                <div class="col-span-1 shadow-md p-3 m-2 w-full">
                         <ul>
                         <li v-for="(media, index) in farmer.data.media"
                             :key="media.url"
@@ -499,9 +551,40 @@ const submitForm= async()=> {
             </TabPanel>
             <TabPanel header="Farms">
                 <div>
-                <h1>Map Component Example</h1>
+                    <Button
+                        label="Add"
+                        icon="pi pi-plus"
+                        severity="success"
+                        @click="showFarmCreateModal()"
+                        rounded
+                />
+                <div
+                 v-show="farmer.data.farms.length>0"
+                class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 place-items-center gap-2 rounded-md shadow">
+                <div class="col-span-1 shadow-md p-3 m-2 w-full">
+                        <ul>
+                        <li v-for="(farm, index) in farmer.data.farms"
+                            :key="farm.id"
+                            class="w-full flex flex-row  rounded-sm border-1 shadow-sm hover:bg-slate-400 hover:text-white text-center"
+                            @mouseover="updateFarm(farm)">
+                            {{ farm.description }}
+                            <Drop :drop-route="route('farms.destroy',currentFarmId)"/>
+                        </li>
+                        </ul>
+                    </div>
+                    <div class="col-span-1 shadow-md p-3 m-2 w-full">
+                       <h1>{{currentFarm}}</h1>
+                       <img :src="currentFarm" alt="" :key="currentFarm" class="text-center rounded-md shadow">
+                        <div class="w-3/4 h-3/4">
+                            <Map :latitude=currentFarmLatitude :longitude=currentFarmLongitude />
+                        </div>
+
+
+                    </div>
+                    </div>
+
                 <!-- {{ farmer.data.created_geolocation.latitude }} -->
-                <Map :latitude=latitude :longitude=longitude />
+
             </div>
             </TabPanel>
             <TabPanel header="Visits">
@@ -608,6 +691,30 @@ const submitForm= async()=> {
                                 placeholder="Select Owner" v-model="form2.recordable_type" />
 
                      <CameraOrFileUpload class="m-3 "  @photo-captured="handlePhotoCaptured" />
+                     <Button
+                       label= Save
+                       severity="info"
+                       icon="pi pi-send"
+                       type="submit"
+                       class="icon-right"
+                      />
+                      <Button label="Cancel" severity="warning" icon="pi pi-cancel" @click="showModal=false"/>
+                </form>
+
+
+     </div>
+
+     <div v-else-if="model=='Farm'" class="p-4">
+        <div  class="w-full p-4 mb-2 tracking-wide text-center text-white rounded-sm bg-slate-500"> {{mode.state}} Farm</div>
+              <form @submit.prevent="submitForm3()" class="flex flex-col text-center ">
+                     <!-- <Dropdown :options="['ID_Photo','AC_Photo','Profile_photo','Farm_Photo']" placeholder="Select Media Type" v-model="form2.media_type"/> -->
+                     <!-- <InputText label="Description" v-model="form2.description" placeholder="Description" class="text-center"/> -->
+                     <Dropdown :options=locations
+                                 optionValue="id"
+                                 optionLabel="location_name"
+                                placeholder="Select location" v-model="form3.location_id" />
+
+                     <!-- <CameraOrFileUpload class="m-3 "  @photo-captured="handlePhotoCaptured" /> -->
                      <Button
                        label= Save
                        severity="info"

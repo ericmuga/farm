@@ -5,7 +5,12 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Services\ExportService;
-use App\Http\Controllers\{FarmerController,ContactController,AssociateController,LocationController, MediumController};
+use App\Http\Controllers\{FarmerController,
+                          ContactController,
+                          AssociateController,
+                          FarmController,
+                          LocationController,
+                          MediumController};
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -51,6 +56,7 @@ Route::resource('associates', AssociateController::class);
 Route::resource('locations', LocationController::class);
 Route::get('exportLocation',[LocationController::class,'export'])->name('locations.export');
 Route::resource('medium', MediumController::class);
+Route::resource('farms', FarmController::class);
 // Route::get('exports/{route}',[ExportService::class,'export']);
 });
 

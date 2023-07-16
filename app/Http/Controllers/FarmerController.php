@@ -10,6 +10,7 @@ use App\Http\Resources\FarmerResource;
 use App\Models\Contact;
 use App\Services\SearchService;
 use App\Exports\FarmerExport;
+use App\Models\Location;
 use Maatwebsite\Excel\Facades\Excel;
 class FarmerController extends Controller
 {
@@ -22,7 +23,7 @@ class FarmerController extends Controller
 
          $farmers=FarmerResource::collection(
               (new SearchService(new Farmer()))
-                ->with(['contacts','associates','media'])
+                ->with(['contacts','associates','media','farms'])
                 ->counts(['contacts','associates','media'])
                 // ->sums(['relatedModel4' => 'column'])
               ->search($request)
@@ -81,11 +82,12 @@ class FarmerController extends Controller
     public function show($id)
     {
         // This view will show farmer details
-        $f=Farmer::firstWhere('id',$id)->load('contacts','associates','associates.contacts','media');
+        $f=Farmer::firstWhere('id',$id)->load('contacts','associates','associates.contacts','media','farms');
         $farmer=FarmerResource::make($f);
+        $locations= Location::select('id','location_name')->get();
 
     //    dd($farmer);
-        return inertia('Farmer/Show',compact('farmer'));
+        return inertia('Farmer/Show',compact('farmer','locations'));
     }
 
 
