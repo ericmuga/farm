@@ -10,7 +10,8 @@ use App\Http\Controllers\{FarmerController,
                           AssociateController,
                           FarmController,
                           LocationController,
-                          MediumController};
+                          MediumController,
+                          VisitController};
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -57,6 +58,7 @@ Route::resource('locations', LocationController::class);
 Route::get('exportLocation',[LocationController::class,'export'])->name('locations.export');
 Route::resource('medium', MediumController::class);
 Route::resource('farms', FarmController::class);
+Route::resource('visits', VisitController::class);
 // Route::get('exports/{route}',[ExportService::class,'export']);
 });
 

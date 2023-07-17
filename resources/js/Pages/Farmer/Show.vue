@@ -20,10 +20,15 @@ import TabPanel from 'primevue/tabpanel';
 
 import CameraOrFileUpload from '@/Components/CameraOrFileUpload.vue';
 import {useLocation} from '@/Composables/useLocation.js'
-import Map from '@/Components/Map.vue';
+
+import FarmAccordion from '@/Components/FarmAccordion.vue';
 
 onMounted(() => {
     fetchLocation()
+    if (Object.hasOwnProperty(props.farmer.data,'farms'))
+    {
+        currentFar.value=props.farmer.data.farms[0];
+    }
 
 
 
@@ -39,7 +44,7 @@ let currentFarm=ref('');
 let currentFarmId=ref('');
 let currentFarmLatitude=ref('');
 let currentFarmLongitude=ref('');
-
+let currentFarmNearest=ref('')
 const props= defineProps({
     farmer:Object,
     locations:Object,
@@ -63,11 +68,7 @@ const updateImage=(media)=>{
 
 const updateFarm=(farm)=>{
 
-    currentFarm.value=farm.description
-  currentFarmId=farm.id
-  const createdGeolocation = JSON.parse(farm.created_geolocation);
-  currentFarmLatitude=createdGeolocation.latitude
-  currentFarmLongitude=createdGeolocation.longitude
+    currentFarm.value=farm
 }
 
 
@@ -114,12 +115,24 @@ const form2 =useForm({
 
 const form3 =useForm({
      'id':null,
+     'farm_size':'',
+     'nearest_center':'',
      'location_id':'',
      'farmer_id':props.farmer.data.id,
      'created_geolocation':null,
 
 })
 
+const farm_sizes=[
+
+    {'name':'Less than 1/8 acres','code':1},
+    {'name':'1/8 acres','code':2},
+    {'name':'1/4 acres','code':3},
+    {'name':'1/2 acres','code':4},
+    {'name':'1 acre','code':5},
+    {'name':'2 acres','code':6},
+    {'name':'Greater than 2acres','code':7},
+]
 
 
 const contactable_types=[
@@ -532,18 +545,21 @@ form3.geolocation={error}
                  v-show="farmer.data.media.length>0"
                 class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 place-items-center gap-2 rounded-md shadow">
                 <div class="col-span-1 shadow-md p-3 m-2 w-full">
-                        <ul>
-                        <li v-for="(media, index) in farmer.data.media"
+                        <table>
+                        <tr v-for="(media, index) in farmer.data.media"
                             :key="media.url"
                             class="w-full p-3 rounded-sm border-1 shadow-sm hover:bg-slate-400 hover:text-white text-center"
                             @mouseover="updateImage(media)">
-                            {{ media.description }}
-                        </li>
-                        </ul>
+                           <td> {{ media.description }} </td>
+                           <td>
+                              <Drop :drop-route="route('medium.destroy',currentImageId)"/>
+                           </td>
+                        </tr>
+                        </table>
                     </div>
                     <div class="col-span-1 shadow-md p-3 m-2 w-full">
                         <img :src="currentImage" alt="" :key="currentImage" class="text-center rounded-md shadow">
-                        <Drop :drop-route="route('medium.destroy',currentImageId)"/>
+
                     </div>
                     </div>
 
@@ -557,26 +573,35 @@ form3.geolocation={error}
                         severity="success"
                         @click="showFarmCreateModal()"
                         rounded
-                />
+                    />
                 <div
                  v-show="farmer.data.farms.length>0"
-                class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 place-items-center gap-2 rounded-md shadow">
-                <div class="col-span-1 shadow-md p-3 m-2 w-full">
-                        <ul>
-                        <li v-for="(farm, index) in farmer.data.farms"
+                class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2  rounded-md shadow"
+                >
+                <div class="col-span-1 shadow-md w-full mt-2">
+                        <table>
+
+                            <tr class="bg-slate-200  w-full ">
+                                <th> Description</th>
+                                <th> Actions</th>
+                            </tr>
+
+                        <tr v-for="(farm, index) in farmer.data.farms"
                             :key="farm.id"
-                            class="w-full flex flex-row  rounded-sm border-1 shadow-sm hover:bg-slate-400 hover:text-white text-center"
-                            @mouseover="updateFarm(farm)">
-                            {{ farm.description }}
-                            <Drop :drop-route="route('farms.destroy',currentFarmId)"/>
-                        </li>
-                        </ul>
+                            class="w-full p-3 rounded-sm border-1 shadow-sm hover:bg-slate-400 hover:text-white text-center"
+                            @click="updateFarm(farm)">
+                            <td>{{ farm.description }}</td>
+                           <td><Drop :drop-route="route('farms.destroy',currentFarmId)"/></td>
+                        </tr>
+                    </table>
                     </div>
                     <div class="col-span-1 shadow-md p-3 m-2 w-full">
-                       <h1>{{currentFarm}}</h1>
-                       <img :src="currentFarm" alt="" :key="currentFarm" class="text-center rounded-md shadow">
+
+                       <!-- <img :src="currentFarm" alt="" :key="currentFarm" class="text-center rounded-md shadow"> -->
                         <div class="w-3/4 h-3/4">
-                            <Map :latitude=currentFarmLatitude :longitude=currentFarmLongitude />
+                            <!-- {{ currentFarm }} -->
+                            <FarmAccordion :farm="currentFarm" />
+
                         </div>
 
 
@@ -587,11 +612,11 @@ form3.geolocation={error}
 
             </div>
             </TabPanel>
-            <TabPanel header="Visits">
+            <!-- <TabPanel header="Visits">
                 <p>
                     Visits will come here;
                 </p>
-            </TabPanel>
+            </TabPanel> -->
         </TabView>
     </div>
                             </div>
@@ -709,10 +734,16 @@ form3.geolocation={error}
               <form @submit.prevent="submitForm3()" class="flex flex-col text-center ">
                      <!-- <Dropdown :options="['ID_Photo','AC_Photo','Profile_photo','Farm_Photo']" placeholder="Select Media Type" v-model="form2.media_type"/> -->
                      <!-- <InputText label="Description" v-model="form2.description" placeholder="Description" class="text-center"/> -->
+                     <Dropdown :options=farm_sizes
+                                 optionValue="code"
+                                 optionLabel="name"
+                                placeholder="Select Farm Size" v-model="form3.farm_size" />
+
                      <Dropdown :options=locations
-                                 optionValue="id"
+                                 optionValue="code"
                                  optionLabel="location_name"
                                 placeholder="Select location" v-model="form3.location_id" />
+                      <InputText placeholder="Nearest Center" v-model="form3.nearest_center"/>
 
                      <!-- <CameraOrFileUpload class="m-3 "  @photo-captured="handlePhotoCaptured" /> -->
                      <Button

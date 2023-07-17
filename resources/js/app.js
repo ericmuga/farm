@@ -24,8 +24,9 @@ import ToastService from 'primevue/toastservice';
 import PrimeVue from 'primevue/config';
 import 'primevue/resources/themes/lara-light-indigo/theme.css';
 import FileUpload from 'primevue/fileupload';
-
-
+import Accordion from 'primevue/accordion';
+import AccordionTab from 'primevue/accordiontab';
+import Calendar from 'primevue/calendar';
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Farms';
 
 createInertiaApp({
@@ -48,6 +49,9 @@ createInertiaApp({
             .component('MultiSelect',MultiSelect)
             .component('Dropdown',Dropdown)
             .component('Pagination',Pagination)
+            .component('AccordionTab',AccordionTab)
+            .component('Accordion',Accordion)
+            .component('Calendar',Calendar)
             .component('Link',Link)
             // .mount(el)
             .mount(el);
