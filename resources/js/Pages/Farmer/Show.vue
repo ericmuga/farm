@@ -598,9 +598,13 @@ form3.geolocation={error}
                     <div class="col-span-1 shadow-md p-3 m-2 w-full">
 
                        <!-- <img :src="currentFarm" alt="" :key="currentFarm" class="text-center rounded-md shadow"> -->
-                        <div class="w-3/4 h-3/4">
+                        <div class="w-3/4 h-3/4" v-if="currentFarm">
                             <!-- {{ currentFarm }} -->
                             <FarmAccordion :farm="currentFarm" />
+
+                        </div>
+                        <div class="w-3/4 h-3/4" v-else="currentFarm">
+                           Click on the farm to show details or create a new farm
 
                         </div>
 

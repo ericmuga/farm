@@ -22,4 +22,9 @@ class Location extends Model
     {
         return $this->children()->with('descendants');
     }
+
+    public function visits()
+    {
+        return $this->hasMany(Visit::class);
+    }
 }

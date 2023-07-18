@@ -59,7 +59,7 @@
                     <div class="flex flex-row gap-1 justify-between  ">
                         <label for="integeronly" class="font-bold  text-center mx-3 ">{{ Object.keys(item)[0] }} </label>
 
-                        <InputNumber  inputId="integeronly" v-model="form.herd_inventory[index][Object.keys(item)[0]]" />
+                        <InputText  inputId="integeronly" v-model="form.herd_inventory[index][Object.keys(item)[0]]" />
                      </div>
 
 
@@ -68,6 +68,9 @@
                 <Calendar v-model="form.ready_by_dates" selectionMode="range" :manualInput="false" class="col-span-1" />
                 <label for="integeronly" class="font-bold bg-slate-300 p-1 m-1 rounded-md text-center mx-3 col-span-1 ">Comments </label>
                 <TextArea v-model="form.comments" />
+                <!-- <label for="integeronly" class="font-bold bg-slate-300 p-1 m-1 rounded-md text-center mx-3 col-span-1 ">Signature </label> -->
+
+                <!-- <signature-input v-model="form.signature"></signature-input> -->
                 <Button label="Cancel" severity="warning" icon="pi pi-cancel" @click="showModal=false"/>
                 <Button
                        label= Save
@@ -87,6 +90,7 @@
 </template>
 
 <script setup>
+import SignatureInput from '@/Components/SignatureInput.vue';
 import Pagination from '@/Components/Pagination.vue'
 import Swal from 'sweetalert2'
 import Modal from '@/Components/Modal.vue'
@@ -118,6 +122,7 @@ form.created_geolocation={error}
 
  form.post(route('visits.store'),
  {
+
     preserveScroll: true,
      onSuccess: () => {form.reset()
         showModal.value=false
@@ -177,11 +182,11 @@ let showModal=ref(false);
 
 let mode={state:'Create'};
 
-const latitude=''
-const longitude=''
-const title=''
-const farm_size=ref('')
-const farm_sizes=[
+let latitude=''
+let longitude=''
+let title=''
+let farm_size=ref('')
+let farm_sizes=[
                     {'name':'Less than 0.8 acres','code':1},
                     {'name':'1/8 acres','code':2},
                     {'name':'1/4 acres','code':3},
@@ -206,10 +211,11 @@ const searchFarmSizeByCode=(code)=> {
 onMounted(()=>{
     if(props.farm)
     {
-        latitude=JSON.parse(props.farm.value.created_geolocation).latitude;
-        longitude=JSON.parse(props.farm.value.created_geolocation).longitude;
-        title=props.farm.value.description+'|'+props.farm.value.nearest_center;
-        farm_size.value=searchFarmSizeByCode(props.farm.value.farm_size)
+        latitude=JSON.parse(props.farm.created_geolocation).latitude;
+        longitude=JSON.parse(props.farm.created_geolocation).longitude;
+        title=props.farm.description+'|'+props.farm.nearest_center;
+        farm_size.value=searchFarmSizeByCode(props.farm.farm_size)
+        // form.farm_id=props.farm.value.farm.id
     }
 
 })

@@ -82,7 +82,7 @@ class FarmerController extends Controller
     public function show($id)
     {
         // This view will show farmer details
-        $f=Farmer::firstWhere('id',$id)->load('contacts','associates','associates.contacts','media','farms');
+        $f=Farmer::firstWhere('id',$id)->load('contacts','associates','associates.contacts','media','farms','farms.visits');
         $farmer=FarmerResource::make($f);
         $locations= Location::select('id','location_name')->get();
 

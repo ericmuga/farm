@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Visit;
 use App\Http\Requests\StoreVisitRequest;
 use App\Http\Requests\UpdateVisitRequest;
+use App\Models\Farmer;
 use Illuminate\Http\Request;
 class VisitController extends Controller
 {
@@ -30,7 +31,22 @@ class VisitController extends Controller
     public function store(Request $request)
     {
         //
-        dd($request->all());
+        // dd($request->all());
+        $values=$request->except('created_geolocation','herd_inventory','ready_by_dates');
+
+        $savedValues=array_merge($values,[
+                                'created_by_user_id'=>$request->user()->id,
+                                'created_geolocation'=>json_encode($request->created_geolocation),
+                                'herd_inventory'=>json_encode($request->herd_inventory),
+                                'ready_by_dates'=>$request->ready_by_date?json_encode($request->ready_by_dates):null
+                                ]);
+
+
+        $visit=Visit::create($savedValues);
+
+
+        return redirect(route('farmer.show',$visit->farm->farmer->id));
+
     }
 
     /**

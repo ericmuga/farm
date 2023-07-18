@@ -24,4 +24,9 @@ class Farm extends Model
     {
         return $this->morphMany(Medium::class,'recordable');
     }
+
+    public function visits()
+    {
+        return $this->hasMany(Visit::class);
+    }
 }
