@@ -131,7 +131,7 @@ const showUpdateModal=(farmer)=>{
 
 
 const getFirstInstanceByKeyValuePair = (array, key, value) => {
-  return array.find(item => item[key] === value);
+  return array.find(item => item.hasOwnProperty(key) && item[key] === value) || '';
 };
 
 

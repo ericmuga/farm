@@ -103,8 +103,9 @@ const props=defineProps({
     farm:null
 });
 
-const CreateFarmVisit= async()=> {
 
+const CreateFarmVisit= async()=> {
+    form.farm_id= props.farm.id
 
 try {
 const { latitude, longitude } = await useLocation().getLocation();

@@ -27,7 +27,7 @@ onMounted(() => {
     fetchLocation()
     if (Object.hasOwnProperty(props.farmer.data,'farms'))
     {
-        currentFar.value=props.farmer.data.farms[0];
+        currentFarm.value=props.farmer.data.farms[0];
     }
 
 
