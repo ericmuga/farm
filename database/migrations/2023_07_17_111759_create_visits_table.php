@@ -17,6 +17,7 @@ return new class extends Migration
             $table->date('visit_date');
             $table->foreignIdFor(Farm::class);
             $table->json('ready_by_dates')->nullable();
+            $table->integer('ready_by_count')->nullable();
             $table->json('herd_inventory');
             $table->timestamps();
         });

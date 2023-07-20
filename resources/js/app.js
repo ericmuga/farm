@@ -27,6 +27,8 @@ import FileUpload from 'primevue/fileupload';
 import Accordion from 'primevue/accordion';
 import AccordionTab from 'primevue/accordiontab';
 import Calendar from 'primevue/calendar';
+import TabView from 'primevue/tabview';
+import TabPanel from 'primevue/tabpanel';
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Farms';
 
 createInertiaApp({
@@ -40,7 +42,6 @@ createInertiaApp({
             .use(ConfirmationService)
             .use(ToastService)
             .use(createPinia())
-            .component('ToolBar',Toolbar)
             .component('Checkbox',Checkbox)
             .component('Button',Button)
             .component('InputText',InputText)
@@ -52,6 +53,9 @@ createInertiaApp({
             .component('AccordionTab',AccordionTab)
             .component('Accordion',Accordion)
             .component('Calendar',Calendar)
+            .component('Toolbar',Toolbar)
+            .component('TabPanel',TabPanel)
+            .component('TabView',TabView)
             .component('Link',Link)
             // .mount(el)
             .mount(el);

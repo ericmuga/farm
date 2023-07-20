@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Location extends Model
 {
-    protected $fillable = ['location_type', 'location_name', 'parent_location_id'];
+    protected $guarded = ['id'];
 
     public function parent()
     {

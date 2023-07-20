@@ -59,6 +59,7 @@ Route::get('exportLocation',[LocationController::class,'export'])->name('locatio
 Route::resource('medium', MediumController::class);
 Route::resource('farms', FarmController::class);
 Route::resource('visits', VisitController::class);
+Route::get('exportVisit',[VisitController::class,'export'])->name('visits.export');
 // Route::get('exports/{route}',[ExportService::class,'export']);
 });
 

@@ -69,7 +69,7 @@ const handleValueUpdate = (newValue) => {
 };
 provide('emit', handleValueUpdate);
 const createOrUpdateItem=()=>{
-//   fetchLocation();
+  fetchLocation();
 
     if (mode.state=='Create')
    {

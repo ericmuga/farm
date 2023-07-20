@@ -3,7 +3,6 @@ import SearchBox from '@/Components/SearchBox.vue'
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import Toolbar from 'primevue/toolbar';
 import { useForm } from '@inertiajs/vue3'
 
 import { router } from '@inertiajs/vue3'
@@ -15,8 +14,7 @@ import Modal from '@/Components/Modal.vue'
 import Drop from '@/Components/Drop.vue'
 import Card from '@/Pages/Farmer/Card.vue'
 
-import TabView from 'primevue/tabview';
-import TabPanel from 'primevue/tabpanel';
+
 
 import CameraOrFileUpload from '@/Components/CameraOrFileUpload.vue';
 import {useLocation} from '@/Composables/useLocation.js'
@@ -375,7 +373,7 @@ form3.geolocation={error}
 
                      </Toolbar>
                      <div class="card">
-        <TabView>
+        <TabView class="text-center">
             <TabPanel header="Personal Info">
                 <div class="grid grid-cols-3 gap-2 place-items-center">
                    <div class="w-full col-span-1 p-2 border rounded">
@@ -576,9 +574,9 @@ form3.geolocation={error}
                     />
                 <div
                  v-show="farmer.data.farms.length>0"
-                class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2  rounded-md shadow"
+                class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4  rounded-md shadow"
                 >
-                <div class="col-span-1 shadow-md w-full mt-2">
+                <div class="col-span-1 ml-3 shadow-md w-full mt-2">
                         <table>
 
                             <tr class="bg-slate-200  w-full ">
@@ -588,22 +586,22 @@ form3.geolocation={error}
 
                         <tr v-for="(farm, index) in farmer.data.farms"
                             :key="farm.id"
-                            class="w-full p-3 rounded-sm border-1 shadow-sm hover:bg-slate-400 hover:text-white text-center"
+                            class="w-full m-3 rounded-sm border-1 shadow-sm hover:bg-slate-400 hover:text-white text-center"
                             @click="updateFarm(farm)">
                             <td>{{ farm.description }}</td>
                            <td><Drop :drop-route="route('farms.destroy',currentFarmId)"/></td>
                         </tr>
                     </table>
                     </div>
-                    <div class="col-span-1 shadow-md p-3 m-2 w-full">
+                    <div class="col-span-3 shadow-md p-3 m-2 w-full">
 
                        <!-- <img :src="currentFarm" alt="" :key="currentFarm" class="text-center rounded-md shadow"> -->
-                        <div class="w-3/4 h-3/4" v-if="currentFarm">
+                        <div class="" v-if="currentFarm">
                             <!-- {{ currentFarm }} -->
                             <FarmAccordion :farm="currentFarm" />
 
                         </div>
-                        <div class="w-3/4 h-3/4" v-else="currentFarm">
+                        <div class="" v-else="currentFarm">
                            Click on the farm to show details or create a new farm
 
                         </div>

@@ -27,14 +27,150 @@
                     </p>
                 </AccordionTab>
                 <AccordionTab header="Visits">
-                       <Button
-                            label="Visit"
-                            icon="pi pi-plus"
-                            severity="success"
-                            @click="showVisitCreateModal()"
-                            rounded
-                    />
-                </AccordionTab>
+
+
+
+           <!--table of visits-->
+           <div>
+                            <Toolbar>
+                                <template #start>
+                                    <!-- <Button label="New" icon="pi pi-plus" class="mr-2" /> -->
+                                    <div class="flex card justify-content-center">
+
+                                        <FileUpload mode="basic" name="demo[]" url="./upload.php" accept="image/*" :maxFileSize="1000000" @upload="onUpload" :auto="true" chooseLabel="Upload" />
+                                    </div>
+                                      <Button
+                                                label="Visit"
+                                                icon="pi pi-plus"
+                                                severity="success"
+                                                @click="showVisitCreateModal()"
+                                                rounded
+                                        />
+
+
+
+                                </template>
+                                <template #center>
+                                    <div>
+                                        <!-- <Pagination :links="farmers.meta.links" /> -->
+                                    </div>
+                                    <!-- <Modal :show="showModal.value">
+                                        <FilterPane :propsData="columnListing" />
+                                    </Modal> -->
+                                      <!-- <FilterPane :propsData="columnListing" /> -->
+
+                                </template>
+
+                                    <template #end>
+
+                                       <div class="p-2">
+                                       <!-- <a :href="route('farmers.export')">
+                                        <Button label="Download" icon="pi pi-download" class="p-button-success" />
+                                    </a> -->
+                                        <DownloadButton :link="route('farmers.export')"/>
+                                       </div>
+
+
+                                             <SearchBox model="visits.index" />
+                                    </template>
+                                        </Toolbar>
+
+                                        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+
+                                            <table class="w-full text-sm text-left text-gray-500">
+                                                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+
+                                                    <tr class="bg-slate-300"  >
+                                                         <th scope="col" class="px-6 py-3">
+                                                           Visit Date
+                                                        </th>
+
+                                                        <th scope="col" class="px-6 py-3 text-center">
+                                                           Visited By
+                                                        </th>
+                                                        <th scope="col" class="px-6 py-3 text-center">
+                                                           Ready By Date
+                                                        </th>
+                                                        <th scope="col" class="px-6 py-3">
+                                                          Ready by Count
+                                                        </th>
+                                                        <th scope="col" class="px-6 py-3 text-center">
+                                                          data
+                                                        </th>
+
+
+                                                        <th scope="col" class="px-6 py-3">
+                                                           Actions
+                                                        </th>
+
+
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+
+                                                    <tr
+                                                      v-for="visit in farm.visits"
+                                                       :key="visit.id"
+                                                       class="bg-white border-b hover:bg-slate-100 hover:text-black"
+                                                    >
+
+                                                    <td class="px-3 py-2 text-xs">
+                                                        {{ visit.visit_date}}
+                                                    </td>
+                                                    <td>
+                                                         {{ visit.user_id }}
+                                                    </td>
+                                                    <td class="px-3 py-2 text-xs font-bold text-center ">
+                                                        {{ visit.ready_by_dates }}
+                                                    </td>
+
+                                                    <td class="px-3 py-2 text-xs font-bold">
+                                                        {{ visit.ready_by_count }}
+                                                    </td>
+
+                                                    <td class="px-3 py-2 text-xs text-center">
+                                                        <!-- {{ visit.herd_inventory }} -->
+                                                    </td>
+                                                    <td>
+                                                       <div class="flex flex-row">
+                                                          <!-- <Drop  :drop-route="route('farmer.destroy',{id:farmer.id})"/>
+                                                            <Button
+                                                                      icon="pi pi-pencil"
+                                                                      severity="info"
+                                                                      text
+                                                            @click="showUpdateModal(farmer)"
+                                                                      />
+
+                                                             <Button
+                                                                      icon="pi pi-pencil"
+                                                                      severity="info"
+                                                                      text
+
+                                                            /> -->
+                                                       </div>
+                                                    </td>
+
+                                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <Toolbar>
+                        <!-- <template #center>
+                            <div >
+                                <Pagination :links="farmers.meta.links" />
+                            </div>
+                        </template> -->
+                    </Toolbar>
+
+
+                </div>
+                 </AccordionTab>
+           <!--End of Visits table-->
+
+
                 <AccordionTab header="Geolocation">
                     <div v-if="farm">
 

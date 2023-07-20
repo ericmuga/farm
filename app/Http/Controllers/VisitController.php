@@ -5,16 +5,30 @@ namespace App\Http\Controllers;
 use App\Models\Visit;
 use App\Http\Requests\StoreVisitRequest;
 use App\Http\Requests\UpdateVisitRequest;
-use App\Models\Farmer;
+use App\Services\{SearchService,ExcelService};
 use Illuminate\Http\Request;
+use App\Http\Resources\VisitResource;
 class VisitController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+
+
+        $visits=VisitResource::collection(
+            (new SearchService(new Visit()))
+              ->with(['farmer','location','farm'])
+            //   ->counts(['contacts','associates','media'])
+              // ->sums(['relatedModel4' => 'column'])
+            ->search($request)
+
+        );
+
+      //   dd($farmers);
+
+    return inertia('Visit/List',compact('visits'));
     }
 
     /**
@@ -80,4 +94,27 @@ class VisitController extends Controller
     {
         //
     }
+
+    public function export()
+    {
+        $excelService = new ExcelService(new Visit());
+
+        return $excelService->download('exported_data.xlsx');
+        // return $excelService->store('exported_data.xlsx', 'public');
+    }
+
+    public function import(Request $request)
+    {
+        $file = $request->file('import_file');
+
+        // Add your logic to handle the imported file and save it to the respective model
+        // You can use 'laravel-excel' to read the data from the file if needed
+
+        // Example of reading data from the imported file
+        $importedData = Excel::toArray([], $file);
+        // Process the $importedData and save it to your model
+
+        return redirect()->back()->with('success', 'Data imported successfully.');
+    }
 }
+
