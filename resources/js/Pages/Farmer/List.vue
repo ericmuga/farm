@@ -156,9 +156,7 @@ const types = ref([
 
     <AuthenticatedLayout @add="showModal=true">
         <template #header>
-            <h2 class="text-xl font-semibold text-gray-800">Farmers
-              <Button icon="pi pi-user" :label=farmers.meta.total severity="info" rounded outlined aria-label="User" />
-            </h2>
+             <Button type="button" label="Farmers" icon="pi pi-user" :badge=farmers.meta.total badgeClass="p-badge-danger" outlined />
 
         </template>
 
@@ -180,7 +178,7 @@ const types = ref([
                                         <!-- <i class="mr-2 pi pi-bars p-toolbar-separator" /> -->
                                         <!-- <SplitButton label="Save" icon="pi pi-check" :model="farmers" class="p-button-warning"></SplitButton> -->
                                     <Button
-                                         label="Add"
+                                         label="Farmer"
                                          icon="pi pi-plus"
                                          severity="info"
                                          @click="showCreateModal()"

@@ -34,4 +34,9 @@ class Farmer extends Model
     {
         return $this->hasMany(Farm::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class,'created_by_user_id');
+    }
 }

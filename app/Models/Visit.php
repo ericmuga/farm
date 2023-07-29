@@ -23,9 +23,15 @@ class Visit extends Model
     }
 
     public function farmer()
-{
-    return $this->belongsTo(Farmer::class, 'farmer_id', 'id');
-}
+    {
+        return $this->belongsTo(Farmer::class, 'farmer_id', 'id');
+    }
+
+
+    public function user()
+    {
+        return $this->belongsTo(User::class,'created_by_user_id');
+    }
 
 
 }

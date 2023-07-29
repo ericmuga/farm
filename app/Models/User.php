@@ -28,6 +28,11 @@ class User extends Authenticatable
         'password',
     ];
 
+public function farmers()
+{
+    return $this->hasMany(Farmer::class,'created_by_user_id','id');
+}
+
     /**
      * The attributes that should be hidden for serialization.
      *

@@ -25,36 +25,93 @@ onMounted(() => {
     fetchLocation()
 });
 
+const findValueByKey=(dataArray, key) =>{
+    for (const item of dataArray) {
+    if (key in item) {
+      return item[key];
+    }
+  }
+  return null;// Return null if the key is not found in the array
+};
+
+const navigateTo=(farmerId)=>{
+  // Use Inertia.js Link to navigate to the desired page
+  router.visit(`/farmer/${farmerId}`);
+};
+
+
 const fetchLocation =  async () => {
   try {
     const { latitude, longitude } = await useLocation().getLocation();
-    // Do something with the latitude and longitude
-   form.latitude=latitude
-   form.longitude=longitude
-// alert(form.longitude)
-    console.log(latitude)
+    if(mode.state=='Create')
+    {
+        form.created_geolocation={latitude,longitude}
+    }
+    else{
+        form.updated_geolocation={latitude,longitude}
+    }
+    // console.log(form.updated_geolocation)
 
   } catch (error) {
    form.geoLocation={error}
   }
 };
 
+function formatDateRange(dateArray) {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+
+  const startDate = new Date(dateArray[0]);
+  const endDate = new Date(dateArray[1]);
+
+  const formattedStartDate = startDate.toLocaleDateString('en-US', options);
+  const formattedEndDate = endDate.toLocaleDateString('en-US', options);
+
+  const startDay = startDate.getDate();
+  const endDay = endDate.getDate();
+
+  const formattedStartDay = getDayWithOrdinalSuffix(startDay);
+  const formattedEndDay = getDayWithOrdinalSuffix(endDay);
+
+  return ` ${formattedStartDate} to  ${formattedEndDate}`;
+}
+
+function getDayWithOrdinalSuffix(day) {
+  const suffixes = ['th', 'st', 'nd', 'rd'];
+  const relevantDigits = (day % 100 > 10 && day % 100 < 20) ? 0 : day % 10;
+  const suffix = suffixes[relevantDigits] || suffixes[0];
+  return `${day}${suffix}`;
+}
 
 
 
 
 
-// const form= useForm({
-//                         form.visit_date:'',
-//                         form.farm_id:'',
-//                         form.ready_by_dates:'',
-//                         form.ready_by_count:'',
-//                         form.herd_inventory:'',
-//                         form.created_geolocation:null,
-//                         form.updated_geolocation:null,
-//                         form.id:null,
 
-//                         })
+  const form = useForm({
+  visit_date: new Date().toLocaleDateString(),
+  ready_by_dates:'',
+  ready_by_count:'',
+  farm_id: '',
+  updated_geolocation:null,
+  created_geolocation:null,
+  herd_inventory: [
+                        { '0-1': 0 },
+                        { '1-2': 0 },
+                        { '2-3': 0 },
+                        { '3-4': 0 },
+                        { '4-5': 0 },
+                        { '5-6': 0 },
+                        { '6-7': 0 },
+                        { '7-8': 0 },
+                        { 'Sows': 0 },
+                        { 'Gilts': 0 },
+                        { 'Boars': 0 },
+
+
+                    ],
+    id:null,
+    user_id:null
+});
 
 
 
@@ -63,20 +120,38 @@ const createOrUpdateItem=()=>{
 
     if (mode.state=='Create')
 
-          form.post(route('visit.store'))
+          form.post(route('visits.store'))
         else
-     form.patch(route('visit.update',form.id))
+        // console.log(form)
+     form.patch(route('visits.update',form.id))
       showModal.value=false;
 
     Swal.fire(`Farmer ${mode.state}ed Successfully!`,'','success');
 
 }
 
+const formatDateRange2=(inputStringOrArray)=> {
+    const inputString = Array.isArray(inputStringOrArray) ? inputStringOrArray.join(",") : inputStringOrArray;
+
+const dateArray = inputString.split(",");
+const startDate = new Date(dateArray[0]);
+const endDate = new Date(dateArray[1]);
+
+const formattedStartDate = startDate.toISOString().slice(0, 10);
+const formattedEndDate = endDate.toISOString().slice(0, 10);
+
+return `${formattedStartDate} - ${formattedEndDate}`;
+}
+
+
+
 
 let mode= { state: 'Create' };
 
   defineProps({
-       visits:Object
+       visits:Object,
+       users:Object,
+       farms:Object,
   })
 
   let showModal=ref(false);
@@ -91,25 +166,40 @@ const showCreateModal=()=>{
 
 }
 
-const navigateTo=(visitId)=>{
-  // Use Inertia.js Link to navigate to the desired page
-  router.visit(`/visits/${visitId}`);
-}
+// const navigateTo=(visitId)=>{
+//   // Use Inertia.js Link to navigate to the desired page
+//   router.visit(`/visits/${visitId}`);
+// }
 
 const showUpdateModal=(visit)=>{
+   mode.state='Update'
    fetchLocation()
-    mode.state='Update'
-    // alert(mode.state)
-    form.visit_date=visit.visit_date
-    form.farm_id=visit.farm_id
-    form.ready_by_dates=visit.ready_by_dates
-    form.ready_by_count=visit.ready_by_count
-    form.herd_inventory=visit.herd_inventory
-    form.id=visit.id
 
+
+    form.visit_date=visit.visit_date
+    form.farm_id=visit.farm.id
+    form.ready_by_dates=formatDateRange2(JSON.parse(visit.ready_by_dates))
+    form.ready_by_count=visit.ready_by_count
+    form.herd_inventory=JSON.parse(visit.herd_inventory)
+    form.id=visit.id
+    form.user_id=visit.user.id
+console.log(form)
     showModal.value=true
 }
 
+const herd_inventory_options=[
+                                {name:'0-1'},
+                                {name:'1-2'},
+                                {name:'2-3'},
+                                {name:'3-4'},
+                                {name:'4-5'},
+                                {name:'5-6'},
+                                {name:'6-7'},
+                                {name:'7-8'},
+                                {name:'Sows'},
+                                {name:'Gilts'},
+                                {name:'Boars'}
+                            ]
 // const onUpload=()={
 //     console.log('uploading')
 // }
@@ -123,9 +213,11 @@ const showUpdateModal=(visit)=>{
 
     <AuthenticatedLayout @add="showModal=true">
         <template #header>
-            <h2 class="text-xl font-semibold text-gray-800">Visit
-              <Button icon="pi pi-user" :label=visits.meta.total severity="info" rounded outlined aria-label="User" />
-            </h2>
+
+
+
+              <Button type="button" label="Visits" icon="pi pi-eye" :badge=visits.meta.total badgeClass="p-badge-danger" outlined />
+
 
         </template>
 
@@ -186,6 +278,9 @@ const showUpdateModal=(visit)=>{
                                                          <th scope="col" class="px-6 py-3">
                                                             Visit Date
                                                         </th>
+                                                        <th scope="col" class="px-6 py-3">
+                                                            Visitor
+                                                        </th>
 
                                                         <th scope="col" class="px-6 py-3 text-center">
                                                            Farm
@@ -199,8 +294,14 @@ const showUpdateModal=(visit)=>{
                                                         <th scope="col" class="px-6 py-3 text-center">
                                                          Ready By Count
                                                         </th>
+                                                        <th scope="col" class="px-6 py-3 text-center">
+                                                         Sows
+                                                        </th>
                                                          <th scope="col" class="px-6 py-3 text-center">
-                                                          Herd Inventory
+                                                          Farmer
+                                                        </th>
+                                                        <th scope="col" class="px-6 py-3 text-center">
+                                                          Last Updated
                                                         </th>
                                                         <th scope="col" class="px-6 py-3">
                                                            Actions
@@ -220,37 +321,52 @@ const showUpdateModal=(visit)=>{
 
                                                     >
 
-                                                    <td class="px-3 py-2 text-xs">
+                                                    <td class="px-3 py-1 text-xs">
                                                         {{ visit.visit_date }}
                                                     </td>
+                                                   <td class="px-3 py-1 text-xs">
+                                                        {{ visit.user.name }}
+                                                    </td>
 
-
-                                                    <td class="px-3 py-2 text-xs font-bold text-center ">
+                                                    <td class="px-3 py-1 text-xs font-bold text-center ">
                                                         {{ visit.farm.description }}
                                                     </td>
 
-                                                    <td class="px-3 py-2 text-xs font-bold">
+                                                    <td class="px-3 py-1 text-xs font-bold">
                                                         {{ visit.farm.nearest_center }}
                                                     </td>
 
-                                                    <td class="px-3 py-2 text-xs text-center">
-                                                        {{visit.ready_by_dates}}
+                                                    <td class="px-3 py-1 text-xs ">
+                                                        {{formatDateRange(JSON.parse(visit.ready_by_dates))}}
                                                     </td>
 
-                                                    <td class="px-3 py-2 text-xs text-center">
+                                                    <td class="px-3 py-1 text-xs text-center">
                                                        {{visit.ready_by_count}}
                                                     </td>
 
-                                                    <td class="px-3 py-2 text-xs text-center">
+                                                    <td class="px-3 py-1 text-xs text-center">
+                                                       {{findValueByKey(JSON.parse(visit.herd_inventory),'Sows')}}
+                                                    </td>
 
-                                                            <Button label="herd inventory"/>
 
+
+                                                    <td class="px-3 py-1 text-xs text-center">
+
+                                                        <Button
+                                                                      icon="pi pi-user"
+                                                                      severity="info"
+                                                                      text
+                                                                      @click="navigateTo(visit.farm.farmer_id)"/>
+
+                                                    </td>
+                                                     <td class="px-3 py-1 text-xs text-center">
+                                                       {{visit.last_updated}}
                                                     </td>
 
 
                                                     <td>
                                                        <div class="flex flex-row">
-                                                          <Drop  :drop-route="route('visits.destroy',{id:visit.id})"/>
+                                                          <!-- <Drop  :drop-route="route('visits.destroy',{id:visit.id})"/>-->
                                                             <Button
                                                                       icon="pi pi-pencil"
                                                                       severity="info"
@@ -258,12 +374,8 @@ const showUpdateModal=(visit)=>{
                                                             @click="showUpdateModal(visit)"
                                                                       />
 
-                                                             <Button
-                                                                      icon="pi pi-user"
-                                                                      severity="info"
-                                                                      text
-                                                                      @click="navigateTo(visit.id)"
-                                                            />
+                                                             <!--
+                                                            />  -->
                                                        </div>
                                                     </td>
 
@@ -294,28 +406,62 @@ const showUpdateModal=(visit)=>{
     </div>
 </div>
 
-   <Modal :show="showModal" @close="showModal=false" >
+<Modal :show="showModal" @close="showModal=false" >
+           <div class="p-3 m-4 ">
+            <form class=" grid grid-cols-2" @submit.prevent="createOrUpdateItem()">
 
-     <div class="flex flex-col p-4 rounded-sm">
 
-        <div  class="w-full p-2 mb-2 tracking-wide text-center text-white rounded-sm bg-slate-500"> {{mode.state}} Visit</div>
-        <form  @submit.prevent="createOrUpdateItem()">
+                <h2 class="text-center tracking-wide m-2  w-full bg-indigo-100 p-3 rounded-md col-span-2">Herd Inventory</h2>
+                <label for="integeronly" class="bg-slate-300 p-1 m-1 rounded-md font-bold  text-center mx-3 col-span-1 ">Visit Date </label>
+                <Calendar v-model="form.visit_date"  :manualInput="false" class="col-span-1" />
+                <div class="col-span-1" v-for="(item, index) in form.herd_inventory" :key="index">
 
-      <div class="flex flex-col justify-center ">
-            <Button
-            severity="info"
-            type="submit"
-            :label=mode.state
+                    <div class="flex flex-row gap-1 justify-between  ">
+                        <label for="integeronly" class="font-bold  text-center mx-3 ">{{ Object.keys(item)[0] }} </label>
 
-            />
-            <Button label="Cancel" severity="warning" icon="pi pi-cancel" @click="showModal=false"/>
-      </div>
+                        <InputText  inputId="integeronly" v-model="form.herd_inventory[index][Object.keys(item)[0]]" />
+                     </div>
 
-    </form>
 
-     </div>
+                </div>
+                <InputText  inputId="integeronly" v-model="form.ready_by_count" placeholder="Ready By Qty" />
+                <label for="integeronly" class="font-bold bg-slate-300 p-1 m-1 rounded-md text-center mx-3 col-span-1 ">Ready By Dates </label>
+                <Calendar v-model="form.ready_by_dates" selectionMode="range" :manualInput="false" class="col-span-1" />
+                <label for="integeronly" class="font-bold bg-slate-300 p-1 m-1 rounded-md text-center mx-3 col-span-1 ">Comments </label>
+                <TextArea v-model="form.comments" />
 
-  </Modal>
+                <Dropdown
+                 :options="farms"
+                 optionLabel="description"
+                 optionValue="id"
+                 v-model="form.farm_id"
+                 :placeholder="farms.description?'':'Select Farmer'"
+                />
+
+                <Dropdown
+                 :options="users"
+                 optionLabel="name"
+                 optionValue="id"
+                 placeholder="Select Visitor"
+                 v-model="form.user_id"
+                />
+                <!-- <label for="integeronly" class="font-bold bg-slate-300 p-1 m-1 rounded-md text-center mx-3 col-span-1 ">Signature </label> -->
+
+                <!-- <signature-input v-model="form.signature"></signature-input> -->
+                <Button label="Cancel" severity="warning" icon="pi pi-cancel" @click="showModal=false"/>
+                <Button
+                       label= Update
+                       severity="info"
+                       icon="pi pi-send"
+                       type="submit"
+                       class="icon-right"
+                      />
+
+            </form>
+
+
+           </div>
+        </Modal>
 </AuthenticatedLayout>
 
 </template>

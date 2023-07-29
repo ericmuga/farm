@@ -742,7 +742,7 @@ form3.geolocation={error}
                                 placeholder="Select Farm Size" v-model="form3.farm_size" />
 
                      <Dropdown :options=locations
-                                 optionValue="code"
+                                 optionValue="id"
                                  optionLabel="location_name"
                                 placeholder="Select location" v-model="form3.location_id" />
                       <InputText placeholder="Nearest Center" v-model="form3.nearest_center"/>

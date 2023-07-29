@@ -119,7 +119,7 @@
                                                         {{ visit.visit_date}}
                                                     </td>
                                                     <td>
-                                                         {{ visit.user_id }}
+                                                         {{ visit.user.name }}
                                                     </td>
                                                     <td class="px-3 py-2 text-xs font-bold text-center ">
                                                         {{ visit.ready_by_dates }}
@@ -200,6 +200,7 @@
 
 
                 </div>
+                <InputText  inputId="integeronly" v-model="form.ready_by_count" placeholder="Ready By Qty" />
                 <label for="integeronly" class="font-bold bg-slate-300 p-1 m-1 rounded-md text-center mx-3 col-span-1 ">Ready By Dates </label>
                 <Calendar v-model="form.ready_by_dates" selectionMode="range" :manualInput="false" class="col-span-1" />
                 <label for="integeronly" class="font-bold bg-slate-300 p-1 m-1 rounded-md text-center mx-3 col-span-1 ">Comments </label>
@@ -281,6 +282,7 @@ form.created_geolocation={error}
 const form = useForm({
   'visit_date': new Date().toLocaleDateString(),
   'ready_by_dates':'',
+  'ready_by_count':'',
   'farm_id': props.farm.id,
   'created_geolocation':null,
   'herd_inventory': [
@@ -295,7 +297,7 @@ const form = useForm({
     { 'Sows': 0 },
     { 'Gilts': 0 },
     { 'Boars': 0 },
-    { 'Ready by Qty': 0 },
+
   ],
 });
 

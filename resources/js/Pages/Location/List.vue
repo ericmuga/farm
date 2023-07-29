@@ -168,7 +168,9 @@ const location_types = ref([
 
     <AuthenticatedLayout @add="showModal=true">
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">Locations {{ locations.data.length }}</h2>
+              <Button type="button" label="Locations" icon="pi pi-map-marker" :badge=locations.meta.total badgeClass="p-badge-danger" outlined />
+
+
         </template>
 
         <div class="py-6">
@@ -189,7 +191,7 @@ const location_types = ref([
                                         <!-- <i class="mr-2 pi pi-bars p-toolbar-separator" /> -->
                                         <!-- <SplitButton label="Save" icon="pi pi-check" :model="locations" class="p-button-warning"></SplitButton> -->
                                     <Button
-                                         label="Add"
+                                         label="Location"
                                          icon="pi pi-plus"
                                          severity="info"
                                          @click="showCreateModal()"

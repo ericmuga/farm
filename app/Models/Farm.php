@@ -10,6 +10,8 @@ class Farm extends Model
     use HasFactory;
 
     protected $guarded=['id'];
+
+
     public function farmer()
     {
         return $this->belongsTo(Farmer::class);

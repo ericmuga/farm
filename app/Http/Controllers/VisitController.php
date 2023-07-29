@@ -8,6 +8,10 @@ use App\Http\Requests\UpdateVisitRequest;
 use App\Services\{SearchService,ExcelService};
 use Illuminate\Http\Request;
 use App\Http\Resources\VisitResource;
+use App\Models\Farm;
+use App\Models\Farmer;
+use App\Models\User;
+
 class VisitController extends Controller
 {
     /**
@@ -19,16 +23,17 @@ class VisitController extends Controller
 
         $visits=VisitResource::collection(
             (new SearchService(new Visit()))
-              ->with(['farmer','location','farm'])
+              ->with(['farmer','farm','user'])
             //   ->counts(['contacts','associates','media'])
               // ->sums(['relatedModel4' => 'column'])
             ->search($request)
 
         );
 
-      //   dd($farmers);
+      $users=User::select('name','id')->get();
+      $farms=Farm::select('description','id')->get();
 
-    return inertia('Visit/List',compact('visits'));
+    return inertia('Visit/List',compact('visits','farms','users'));
     }
 
     /**
@@ -50,9 +55,11 @@ class VisitController extends Controller
 
         $savedValues=array_merge($values,[
                                 'created_by_user_id'=>$request->user()->id,
+                                'updated_by_user_id'=>$request->user()->id,
                                 'created_geolocation'=>json_encode($request->created_geolocation),
+                                'updated_geolocation'=>json_encode($request->created_geolocation),
                                 'herd_inventory'=>json_encode($request->herd_inventory),
-                                'ready_by_dates'=>$request->ready_by_date?json_encode($request->ready_by_dates):null
+                                'ready_by_dates'=>$request->ready_by_dates?json_encode($request->ready_by_dates):null
                                 ]);
 
 
@@ -82,9 +89,35 @@ class VisitController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateVisitRequest $request, Visit $visit)
+    public function update(Request $request, Visit $visit)
     {
-        //
+        // dd($request->all());
+        $ready_by_dates=[];
+
+        if ($request->has('ready_by_dates')&& $request->ready_by_dates!=''&& !is_array($request->ready_by_dates))
+        {
+
+                        $ready_by_dates= explode(" - ", $request->ready_by_dates);
+        }
+        else if(
+       $request->has('ready_by_dates')&& $request->ready_by_dates!=''&& is_array($request->ready_by_dates))
+       $ready_by_dates=$request->ready_by_dates;
+         $values=$request->except('created_geolocation','herd_inventory','ready_by_dates');
+
+        $savedValues=array_merge($values,[
+                                // 'created_by_user_id'=>$request->user()->id,
+                                'updated_by_user_id'=>$request->user()->id,
+                                // 'created_geolocation'=>json_encode($request->created_geolocation),
+                                'updated_geolocation'=>json_encode($request->created_geolocation),
+                                'herd_inventory'=>json_encode($request->herd_inventory),
+                                'ready_by_dates'=>($ready_by_dates&&$ready_by_dates!=[])?json_encode($ready_by_dates):null
+                                ]);
+
+
+        $visit->update($savedValues);
+
+
+        return back();
     }
 
     /**

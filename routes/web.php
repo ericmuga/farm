@@ -12,6 +12,8 @@ use App\Http\Controllers\{FarmerController,
                           LocationController,
                           MediumController,
                           VisitController};
+use App\Models\{Farmer,User};
+use Carbon\Carbon;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -33,7 +35,15 @@ use App\Http\Controllers\{FarmerController,
 // });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+
+    $farmers=Farmer::with('farms','farms.location','farms.visits')->orderBy('id')->get();
+    $lastUpdated=$farmers->first()?Carbon::parse($farmers->first()->updated_at)->diffForHumans():'';
+    $users=User::select('name','id')->get();
+    $registeredBy=User::select('name')->withCount('farmers')->get();
+    $data=['farmers'=>$farmers,'lastUpdated'=>$lastUpdated];
+    $farmerData=compact('farmers','lastUpdated','registeredBy');
+
+    return Inertia::render('Dashboard',compact('farmerData'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
