@@ -22,7 +22,7 @@ import {router} from '@inertiajs/vue3'
 //   const getRoute=computed(()=>route(`${props.model}'.index'`))
   watch(searchKey,debounce((value)=>{
                                             //   alert(value)
-                                    router.get(route(`${model.value}`),{'search':value},{preserveState:true,replace:true})
+                                     router.get(route(`${model.value}`),{'search':value},{preserveState:true,replace:true})
                                     },300));
 
 </script>

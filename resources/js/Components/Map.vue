@@ -1,6 +1,5 @@
 <template>
     <div>
-        <!-- <div class="w-full bg-slate-400 text-white" >{{ title }}   </div> -->
       <div id="map" style="height: 400px;"></div>
     </div>
   </template>
